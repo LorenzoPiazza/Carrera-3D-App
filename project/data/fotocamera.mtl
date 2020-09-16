@@ -1,0 +1,14 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl 10124_SLR_Camera_V1
+Ns 9.803922
+Ka 0.588000 0.588000 0.588000
+Kd 0.588000 0.588000 0.588000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd SLR_Camera_V1_L3.123c9eb1ce10-76b6-4cc9-88b7-06885d8e450d\10124_SLR_Camera_V1_Diffuse.jpg
+map_Ka SLR_Camera_V1_L3.123c9eb1ce10-76b6-4cc9-88b7-06885d8e450d\\10124_SLR_Camera_V1_Diffuse.jpg
