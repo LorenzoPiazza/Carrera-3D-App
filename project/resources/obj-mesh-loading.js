@@ -11,7 +11,7 @@
  
 var meshes = [];		//Array di oggetti in cui memorizzo tutte le mesh della scena
 
-function Mesh(meshName, meshData, mo_matrix) {
+function Mesh(meshName, meshData, initial_mo_matrix) {
 	//CREO I BUFFER per questa mesh
 	this.vertexBuffer = gl.createBuffer();
 	this.indexBuffer = gl.createBuffer();
@@ -19,7 +19,8 @@ function Mesh(meshName, meshData, mo_matrix) {
 	
 	this.meshName = meshName;
 	this.meshData = meshData; 
-	this.mo_matrix = m4.copy(mo_matrix);
+	
+	this.initial_mo_matrix = initial_mo_matrix;
 	this.vertices = [];
 	this.normals = [];
 	this.textcoord = [];
@@ -38,13 +39,13 @@ function Mesh(meshName, meshData, mo_matrix) {
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
 }
  
-function loadMeshObj(meshName, filename, mo_matrix){
+function loadMeshObj(meshName, filename, initial_mo_matrix){
   var meshData;
   //CARICAMENTO ASINCRONO DELLA RISORSA TRAMITE JQUERY AJAX
   $.get({url: filename, cache: false, 
 		success: function(result,status,xhr){
 			meshData = gc_openFile(result, meshName);	//1.Leggo la mesh da file .obj
-			var mesh = 	new Mesh(meshName, meshData, mo_matrix);	//2.Creo l'oggetto mesh
+			var mesh = 	new Mesh(meshName, meshData, initial_mo_matrix);	//2.Creo l'oggetto mesh
 			meshes.push(mesh);	//3.Lo inserisco nell'array contenente tutte le mesh
 		},
 		error: function(xhr,status,error){
@@ -91,15 +92,53 @@ function gc_openFile(data, meshName) {
 		return mesh;
  }
 
+var fotocameraPos = [-4, 2, 0];
+
 function drawMesh(item, index, meshes){
 	//SETUP degli ATTRIBUTE
 	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
 	gl.vertexAttribPointer(_position, 3, gl.FLOAT, false,0,0);
 	gl.enableVertexAttribArray(_position);
+	
+	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
+	
+	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
+	
+	
+	mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //1.Setto la posizione iniziale della Mesh
+	if(item.meshName == "fotocameraMesh"){
+		// var fotocameraPos = [item.initial_mo_matrix[12], item.initial_mo_matrix[13], item.initial_mo_matrix[14] ];
+		mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraPos, [px,py,pz], [0,1,0]));
+	}
+	
+	//2.Setto eventuali altri movimenti
+	if(modalitaGara){
+		if(item.meshName == "carreraMesh"){
+			mo_matrix = m4.translate(mo_matrix, px, py, pz);	//Traslazione della carrera
+			mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));
+		}
+		if(item.meshName == "ruoteAnterioriMesh"){
+			mo_matrix = m4.translate(mo_matrix, px, py, pz);		//Traslazione delle ruote
+			mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));
+			mo_matrix = m4.yRotate(mo_matrix,degToRad(sterzo));		//Sterzo
+			mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));	//Rotazione delle ruote
+		}
+		if(item.meshName == "ruotePosterioriMesh"){
+			mo_matrix = m4.translate(mo_matrix, px, py, pz);		//Traslazione delle ruote
+			mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));
+			mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));	//Rotazione delle ruote
+		}
+		
+	}
+	
 	//SETUP DEGLI UNIFORM
-	gl.uniformMatrix4fv(_Mmatrix, false, item.mo_matrix);
+	gl.uniformMatrix4fv(_Mmatrix, false, mo_matrix);
 	
 	//DISEGNO
 	gl.drawArrays(gl.TRIANGLES, 0, 3*item.meshData.nface);
+}
+
+function drawCarrera(){
+	
 }
 
