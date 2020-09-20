@@ -12,7 +12,7 @@
         raggioRuotaA, raggioRuotaP, grip,
         attritoX, attritoY, attritoZ; // attriti
   var key;
-  var lancioCarrera;
+  var incVelocitaLancio;
 
 // da invocare quando e' stato premuto/rilasciato il tasto numero "keycode"
 function EatKey(keycode, keymap, pressed_or_released)
@@ -112,6 +112,7 @@ function CarreraInit(){
   // inizializzo la struttura di controllo
   key=[false,false,false,false];
   lancioCarrera = false;
+  incVelocitaLancio = false;
 
   velSterzo=3.4;         // A
 //  velSterzo=2.26;       // A
@@ -152,9 +153,9 @@ function CarreraDoStep(){
   if (key[3]) sterzo-=velSterzo;
   sterzo*=velRitornoSterzo; // ritorno a volante fermo
 
-  if(lancioCarrera){
+  if(incVelocitaLancio){
 		vzm-=(accMax+0.2);
-		lancioCarrera = false;	
+		incVelocitaLancio = false;	
   }
   else{
 	  if (key[0]) vzm-=accMax; // accelerazione in avanti

@@ -552,7 +552,7 @@ Model.prototype.TranslateScale = function(scale, cx, cy, cz)
 	    var    vertices;           /* array of vertices  */
 	    var    normals = [];            /* array of normals */
 	    var    texcoords = [];          /* array of texture coordinates */
-	    var group;            /* current group pointer */
+	    var  group;            /* current group pointer */
 	    var  material;           /* current material */
 	    var  v, n, t;
 	    var        buf = new Array(128);
@@ -648,7 +648,7 @@ Model.prototype.TranslateScale = function(scale, cx, cy, cz)
 
 			break;
 		case 'u':
-	            material = model.FindMaterial(buf);
+	        material = model.FindMaterial(buf);
 		    group.material = material;
 		    break;
 		case 'g':               /* group */
@@ -730,7 +730,7 @@ Model.prototype.TranslateScale = function(scale, cx, cy, cz)
 
 /* ReadOBJ restituisce un oggetto mesh dentro al quale saranno presenti diversi parametri.
  * I più importanti ai fini del render sono sicuramente i seguenti:
- * mesh.face = array contenente tutte le facce della mesh. Per ogni faccia poi sono presenti 3 array di indici.
+ * mesh.face = array contenente tutte le facce della mesh. Per ogni faccia poi sono presenti 3 array di INDICI:
  * -vert
  * -tex
  * -norm

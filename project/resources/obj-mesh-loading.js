@@ -16,27 +16,59 @@ function Mesh(meshName, meshData, initial_mo_matrix) {
 	this.vertexBuffer = gl.createBuffer();
 	this.indexBuffer = gl.createBuffer();
 	this.normalBuffer = gl.createBuffer();
+	this.texBuffer = gl.createBuffer();
 	
 	this.meshName = meshName;
 	this.meshData = meshData; 
 	
 	this.initial_mo_matrix = initial_mo_matrix;
+	this.indices = [];
 	this.vertices = [];
 	this.normals = [];
 	this.textcoord = [];
 	
 	//Disegnando con la DrawArrays() mi CREO UN ARRAY JS con tutte le coordinate dei vertici, ordinati faccia per faccia.
-	 for (var i=1; i<=meshData.nface; i++){  //Per ogni faccia...
-	  for (var j=0; j<3; j++){	//Inserisco nell'array this.vertices le coord x,y e z dei vertici 0,1 e 2 di quella faccia
+	for (var i=1; i<=meshData.nface; i++){  //Per ogni faccia...
+	  for (var j=0; j<3; j++){	//...e per ogni vertice di quella faccia...
 		  this.vertices.push(meshData.vert[meshData.face[i].vert[j]].x);
 		  this.vertices.push(meshData.vert[meshData.face[i].vert[j]].y);
 		  this.vertices.push(meshData.vert[meshData.face[i].vert[j]].z);
+		  
+		  /*TO use the drawElements() */
+		  //this.indices.push(meshData.face[i].vert[j]);					//...Inserisco nell'array this.indices l'indice di vertice
+		  
+		  this.textcoord.push(meshData.textcoord[meshData.face[i].tex[j]].u);
+		  this.textcoord.push(1 - (meshData.textcoord[meshData.face[i].tex[j]].v));		//1- per fare il flip UV sulla Y?
 	  }					  
 	}
-	
+	// console.log(this.indices);
+	// console.log(meshData.vert);
+	// console.log(meshData.textcoord);
+	// console.log(this.vertices);
+
+	/*TO use the drawElements() */
+	// for(var i=1; i<=meshData.nvert; i++){
+		// this.vertices.push(meshData.vert[i].x);
+		// this.vertices.push(meshData.vert[i].y);
+		// this.vertices.push(meshData.vert[i].z);
+	// }
+	// for(var i=1; i<=meshData.numtext; i++){				
+		// this.textcoord.push(meshData.textcoord[i].u);
+		// this.textcoord.push(meshData.textcoord[i].v);
+	// }
 	//ASSOCIO IL BUFFER creato per questa mesh all'ARRAY_BUFFER e poi vi CARICO I DATI
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
+	
+	/* TO use the DrawElements() */
+	//gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+	//gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);	
+		
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.texBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textcoord), gl.STATIC_DRAW);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, null); 
+	//gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 }
  
 function loadMeshObj(meshName, filename, initial_mo_matrix){
@@ -65,6 +97,7 @@ function gc_openFile(data, meshName) {
 		console.log('Num di vertici: ' + mesh.nvert);
 		console.log('Num di facce: ' + mesh.nface);
 		console.log('Num di edge: ' + mesh.nedge);
+		console.log('Num di texcoord: ' + mesh.numtext);		
 		nvert=mesh.nvert;
 		nedge=mesh.nedge;
 		nface=mesh.nface;
@@ -95,10 +128,6 @@ function gc_openFile(data, meshName) {
 var fotocameraPos = [-4, 2, 0];
 
 function drawMesh(item, index, meshes){
-	//SETUP degli ATTRIBUTE
-	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
-	gl.vertexAttribPointer(_position, 3, gl.FLOAT, false,0,0);
-	gl.enableVertexAttribArray(_position);
 	
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
 	
@@ -106,10 +135,7 @@ function drawMesh(item, index, meshes){
 	
 	
 	mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //1.Setto la posizione iniziale della Mesh
-	if(item.meshName == "fotocameraMesh"){
-		// var fotocameraPos = [item.initial_mo_matrix[12], item.initial_mo_matrix[13], item.initial_mo_matrix[14] ];
-		mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraPos, [px,py,pz], [0,1,0]));
-	}
+
 	
 	//2.Setto eventuali altri movimenti
 	if(modalitaGara){
@@ -131,13 +157,95 @@ function drawMesh(item, index, meshes){
 		
 	}
 	
+	//SETUP degli ATTRIBUTE
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
+	gl.vertexAttribPointer(standardProgramLocs._position, 3, gl.FLOAT, false,0,0);
+	gl.enableVertexAttribArray(standardProgramLocs._position);
+	
 	//SETUP DEGLI UNIFORM
-	gl.uniformMatrix4fv(_Mmatrix, false, mo_matrix);
+	gl.uniformMatrix4fv(standardProgramLocs._Pmatrix, false, proj_matrix);
+	gl.uniformMatrix4fv(standardProgramLocs._Vmatrix, false, view_matrix);
+	gl.uniformMatrix4fv(standardProgramLocs._Mmatrix, false, mo_matrix);
 	
 	//DISEGNO
 	gl.drawArrays(gl.TRIANGLES, 0, 3*item.meshData.nface);
+	
+	// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, item.indexBuffer);
+	// gl.drawElements(gl.TRIANGLES, item.indices.length-1, gl.UNSIGNED_SHORT, 0);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, null); 
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	
 }
 
+function drawFotocameraTexture(item){
+	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
+	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
+	mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //1.Setto la posizione iniziale della Mesh
+	mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraPos, [px,py,pz], [0,1,0]));	//Sfrutto la matrice lookAt come matrice di movimento per far seguire alla fotocamera la macchina
+	
+	//SETUP degli ATTRIBUTE
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
+	gl.vertexAttribPointer(textureProgramLocs._position, 3, gl.FLOAT, false,0,0);
+	gl.enableVertexAttribArray(textureProgramLocs._position);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.texBuffer);
+	gl.vertexAttribPointer(textureProgramLocs._texcoord, 2, gl.FLOAT, false,0,0);
+	gl.enableVertexAttribArray(textureProgramLocs._texcoord);
+	
+	//SETUP DEGLI UNIFORM
+	gl.uniformMatrix4fv(textureProgramLocs._Pmatrix, false, proj_matrix);
+	gl.uniformMatrix4fv(textureProgramLocs._Vmatrix, false, view_matrix);
+	gl.uniformMatrix4fv(textureProgramLocs._Mmatrix, false, mo_matrix);
+	
+	
+	//ATTIVO LE TEXTURE
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, fotocameraTexture);
+	// Tell the shader to use texture unit 0 for the sampler2D "u_texture"
+    gl.uniform1i(textureProgramLocs._texture, 0);
+	
+	//DISEGNO
+	gl.drawArrays(gl.TRIANGLES, 0, 3*item.meshData.nface);
+	// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, item.indexBuffer);
+	// gl.drawElements(gl.TRIANGLES, item.indices.length, gl.UNSIGNED_SHORT, 0);
+
+	// console.log(item.vertices);
+	// console.log(item.indices);
+}
+
+function drawHighwaySignTexture(item){
+	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
+	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
+	mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //1.Setto la posizione iniziale della Mesh
+	
+	
+	//SETUP degli ATTRIBUTE
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
+	gl.vertexAttribPointer(textureProgramLocs._position, 3, gl.FLOAT, false,0,0);
+	gl.enableVertexAttribArray(textureProgramLocs._position);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.texBuffer);
+	gl.vertexAttribPointer(textureProgramLocs._texcoord, 2, gl.FLOAT, false,0,0);
+	gl.enableVertexAttribArray(textureProgramLocs._texcoord);
+	
+	//SETUP DEGLI UNIFORM
+	gl.uniformMatrix4fv(textureProgramLocs._Pmatrix, false, proj_matrix);
+	gl.uniformMatrix4fv(textureProgramLocs._Vmatrix, false, view_matrix);
+	gl.uniformMatrix4fv(textureProgramLocs._Mmatrix, false, mo_matrix);
+	
+	// Tell the shader to use texture unit 0 for the sampler2D "u_texture"
+	
+	//ATTIVO LE TEXTURE
+	gl.activeTexture(gl.TEXTURE1);
+	gl.bindTexture(gl.TEXTURE_2D, highwaySignTexture);
+    gl.uniform1i(textureProgramLocs._texture, 1);
+	
+	//DISEGNO
+	gl.drawArrays(gl.TRIANGLES, 0, 3*item.meshData.nface);
+	// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, item.indexBuffer);
+	// gl.drawElements(gl.TRIANGLES, item.indices.length, gl.UNSIGNED_SHORT, 0);
+}
 function drawCarrera(){
 	
 }

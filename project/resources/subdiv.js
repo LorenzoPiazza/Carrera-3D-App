@@ -91,7 +91,7 @@ function subd_mesh() {
   this.vert = [];           /* mesh vertices [1..nvert] */
   this.edge = [];           /* mesh edges [1..nedge] */
   this.face = [];           /* mesh faces[1..nface] */
-  //QUI AGGIUNGO ANCHE LE ALTRE INFO CHE MI SERVONO ?? Es: Normali, coord Texture
+  //QUI AGGIUNGO ANCHE LE ALTRE INFO CHE MI SERVONO. Es: Normali, coord Texture
   this.numnorm = 0;
   this.numtext = 0;
   this.norm = [];			/* mesh normals [1..numnorm]*/
