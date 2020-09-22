@@ -10,7 +10,7 @@
  */
  
 var meshes = [];		//Array di oggetti in cui memorizzo tutte le mesh della scena
-var fotocameraPos = [-4, 2, 0];
+var fotocameraMeshPos = [-4, 2, 0];
 
 function Mesh(meshName, meshData, initial_mo_matrix) {
 	//CREO I BUFFER per questa mesh
@@ -115,9 +115,11 @@ function gc_openFile(data, meshName) {
 		console.log('Num di facce: ' + mesh.nface);
 		console.log('Num di edge: ' + mesh.nedge);
 		console.log('Num di texcoord: ' + mesh.numtext);		
+		console.log('Num di normali: ' + mesh.numnorm);
 		nvert=mesh.nvert;
 		nedge=mesh.nedge;
 		nface=mesh.nface;
+		
 
 	// FOR DEBUG PURPOSE
 		  //STAMPO I 3 INDICI di vertice e le rispettive coordinate per la prima faccia
@@ -173,8 +175,10 @@ function drawFotocameraTexture(item){
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
 	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
 	mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //1.Setto la posizione iniziale della Mesh
-	mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraPos, [px,py,pz], [0,1,0]));	//Sfrutto la matrice lookAt come matrice di movimento per far seguire alla fotocamera la macchina
-	
+	mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos, [px,py,pz], [0,1,0]));	//Sfrutto la matrice lookAt come matrice di movimento per far seguire alla fotocamera la macchina
+	//Scommentare la prossima riga e sostituire alla riga sopra per far anche muovere la fotocameraMesh oltre ad orientarla.
+	//mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos[0]+px, fotocameraMeshPos[1]+py, fotocameraMeshPos[2]+pz], [px,py,pz], [0,1,0]));
+		
 	//SETUP degli ATTRIBUTE
 	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
 	gl.vertexAttribPointer(textureProgramLocs._position, 3, gl.FLOAT, false,0,0);
@@ -188,8 +192,7 @@ function drawFotocameraTexture(item){
 	gl.uniformMatrix4fv(textureProgramLocs._Pmatrix, false, proj_matrix);
 	gl.uniformMatrix4fv(textureProgramLocs._Vmatrix, false, view_matrix);
 	gl.uniformMatrix4fv(textureProgramLocs._Mmatrix, false, mo_matrix);
-	
-	
+		
 	//ATTIVO LE TEXTURE
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, fotocameraTexture);

@@ -16,7 +16,7 @@ var forward_versor, right_versor, ycam_axis;
 
 function initCamera(){
  /*Inizializzo le posizioni significative*/
- camera_pos = [0, 2, 15];
+ camera_pos = [10, 4, 14];
  target = [0, 2, 0];
  up = [0, 1, 0];
  /*E calcolo gli assi della camera*/

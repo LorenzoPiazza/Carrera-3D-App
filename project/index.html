@@ -122,8 +122,6 @@ function changeMod(radioButton){
 function init(){
 	mo_matrix = m4.identity();
 	/*Carico tutte le mesh della scena in modo asincrono*/
-	
-	//Determino la posizione iniziale in cui voglio la mesh
 
 	//Carico la Mesh Carrera
 	loadMeshObj(1, ["carreraMesh"], "./data/carreraCenteredNoRuoteTextured.obj", [mo_matrix]);
@@ -132,18 +130,13 @@ function init(){
 	var ruotaPD_mo_matrix = m4.translate(mo_matrix, 0.53, 0.11194, 0.69066);
 	loadMeshObj(2, ["ruotaADMesh", "ruotaPDMesh"], "./data/ruotaTextured-R.obj", [ruotaAD_mo_matrix, ruotaPD_mo_matrix]);
 	
-	//var ruoteAnt_initial_mo_matrix = m4.translate(mo_matrix, 0, 0.10704, -0.79903);
-	//loadMeshObj("ruoteAnterioriMesh", "./data/ruote_anteriori_OriginCentered.obj", ruoteAnt_initial_mo_matrix);
-	//var ruotePos_initial_mo_matrix = m4.translate(mo_matrix, 0, 0.11194, 0.69066);
-	//loadMeshObj("ruotePosterioriMesh", "./data/ruote_posteriori_OriginCentered.obj", ruotePos_initial_mo_matrix);
-
-	var fotocamera_mo_matrix = m4.translate(mo_matrix, 0, 0, 0);
 	//Carico la mesh fotocamera
+	var fotocamera_mo_matrix = m4.translate(mo_matrix, 0, 0, 0);
 	loadMeshObj(1, ["fotocameraMesh"], "./data/fotocamera1.obj", [fotocamera_mo_matrix]);
 	
-	var highwaySign_mo_matrix = m4.scale(mo_matrix, 0.5, 0.5, 0.5);
-	highwaySign_mo_matrix = m4.translate(highwaySign_mo_matrix, 0, H-0.15, -60);	//H è l'altezza del piano stradale
 	//Carico la mesh highwaySign
+	var highwaySign_mo_matrix = m4.scale(mo_matrix, 0.5, 0.5, 0.5);
+	highwaySign_mo_matrix = m4.translate(highwaySign_mo_matrix, 0, H-0.15, -15);	//H è l'altezza del piano stradale
 	loadMeshObj(1, ["highwaySignMesh"], "./data/highwaySignTextured.obj", [highwaySign_mo_matrix]);
 	//...QUI Carico eventuali altre mesh della scena...
 }
@@ -658,8 +651,8 @@ var render=function() {
 	//var w_pos = [D*Math.sin(PHI)*Math.cos(THETA),
 			   //   D*Math.sin(PHI)*Math.sin(THETA),
 				  //D*Math.cos(PHI)];
+				  
 	view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
-	//console.log(camera_pos, target);
 
 	gl.enable(gl.DEPTH_TEST);
 	//gl.enable(gl.CULL_FACE);
