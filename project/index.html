@@ -111,52 +111,68 @@ void main(void) {
 <script>
 
 function changeMod(radioButton){
-	if(radioButton.value == "scena")
+	if(radioButton.value == "scena"){
 		modalitaGara = false;
+		initCamera();
+	}
 	else
 		modalitaGara = true;
 }
-/***** INIT *****/
+/***** INIT-CARICAMENTO MESH *****/
 function init(){
-	var mo_matrix = m4.identity();
+	mo_matrix = m4.identity();
 	/*Carico tutte le mesh della scena in modo asincrono*/
 	
 	//Determino la posizione iniziale in cui voglio la mesh
-	<!-- var carrera_mo_matrix=m4.translate(mo_matrix, 0, 0, -5); -->
+
 	//Carico la Mesh Carrera
-	loadMeshObj("carreraMesh", "./data/carreraCenteredNoRuote.obj", mo_matrix);
+	loadMeshObj(1, ["carreraMesh"], "./data/carreraCenteredNoRuoteTextured.obj", [mo_matrix]);
 	//Carico le ruote
-	var ruoteAnt_initial_mo_matrix = m4.translate(mo_matrix, 0, 0.10704, -0.79903);
-	loadMeshObj("ruoteAnterioriMesh", "./data/ruote_anteriori_OriginCentered.obj", ruoteAnt_initial_mo_matrix);
-	var ruotePos_initial_mo_matrix = m4.translate(mo_matrix, 0, 0.11194, 0.69066);
-	loadMeshObj("ruotePosterioriMesh", "./data/ruote_posteriori_OriginCentered.obj", ruotePos_initial_mo_matrix);
+	var ruotaAD_mo_matrix = m4.translate(mo_matrix, 0.53, 0.10704, -0.79903);
+	var ruotaPD_mo_matrix = m4.translate(mo_matrix, 0.53, 0.11194, 0.69066);
+	loadMeshObj(2, ["ruotaADMesh", "ruotaPDMesh"], "./data/ruotaTextured-R.obj", [ruotaAD_mo_matrix, ruotaPD_mo_matrix]);
+	
+	//var ruoteAnt_initial_mo_matrix = m4.translate(mo_matrix, 0, 0.10704, -0.79903);
+	//loadMeshObj("ruoteAnterioriMesh", "./data/ruote_anteriori_OriginCentered.obj", ruoteAnt_initial_mo_matrix);
+	//var ruotePos_initial_mo_matrix = m4.translate(mo_matrix, 0, 0.11194, 0.69066);
+	//loadMeshObj("ruotePosterioriMesh", "./data/ruote_posteriori_OriginCentered.obj", ruotePos_initial_mo_matrix);
 
 	var fotocamera_mo_matrix = m4.translate(mo_matrix, 0, 0, 0);
 	//Carico la mesh fotocamera
-	loadMeshObj("fotocameraMesh", "./data/fotocamera1.obj", fotocamera_mo_matrix);
+	loadMeshObj(1, ["fotocameraMesh"], "./data/fotocamera1.obj", [fotocamera_mo_matrix]);
 	
 	var highwaySign_mo_matrix = m4.scale(mo_matrix, 0.5, 0.5, 0.5);
 	highwaySign_mo_matrix = m4.translate(highwaySign_mo_matrix, 0, H-0.15, -60);	//H è l'altezza del piano stradale
 	//Carico la mesh highwaySign
-	loadMeshObj("highwaySignMesh", "./data/highwaySignTextured.obj", highwaySign_mo_matrix);
-	//...QUI Carico le altre mesh della scena
+	loadMeshObj(1, ["highwaySignMesh"], "./data/highwaySignTextured.obj", [highwaySign_mo_matrix]);
+	//...QUI Carico eventuali altre mesh della scena...
 }
 
 
 //Disegno il piano stradale
 function drawFloor()
 {
-gl.useProgram(programList.standardProgram);
+mo_matrix = m4.identity();
+
 gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer3);
 gl.vertexAttribPointer(standardProgramLocs._position, 3, gl.FLOAT, false,0,0);
 gl.enableVertexAttribArray(standardProgramLocs._position);
 
 gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer3);
 gl.vertexAttribPointer(standardProgramLocs._color, 3, gl.FLOAT, false,0,0) ;
-gl.enableVertexAttribArray(standardProgramLocs._color);
+gl.enableVertexAttribArray(standardProgramLocs._color);	
+
+//SETUP DEGLI UNIFORM
+gl.uniformMatrix4fv(standardProgramLocs._Pmatrix, false, proj_matrix);
+gl.uniformMatrix4fv(standardProgramLocs._Vmatrix, false, view_matrix);
+gl.uniformMatrix4fv(standardProgramLocs._Mmatrix, false, mo_matrix);
 
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer3);
+
 gl.drawElements(gl.TRIANGLES, indices_floor.length, gl.UNSIGNED_SHORT, 0);
+
+gl.bindBuffer(gl.ARRAY_BUFFER, null); 
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 }
 
 //definizione parametri iniziali
@@ -319,6 +335,37 @@ highwaySignTextureImage.addEventListener('load', function() {
 	  } 
 });
 
+// Texture della Carrera
+var carreraTexture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, carreraTexture);
+ 
+// Fill the texture with a 1x1 blue pixel.
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+			  new Uint8Array([0, 0, 255, 255]));
+
+// Asynchronously load an image
+var carreraTextureImage = new Image();
+//carreraTextureImage.src = "data/volpeTexture2.jpg";
+carreraTextureImage.src = "data/TextureRuote1.jpg";
+carreraTextureImage.addEventListener('load', function() {
+	  // Now that the image has loaded make copy it to the texture.
+	  gl.bindTexture(gl.TEXTURE_2D, carreraTexture);
+	  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, carreraTextureImage);
+	  //	gl.generateMipmap(gl.TEXTURE_2D);
+	  
+	  // Check if the image is a power of 2 in both dimensions.
+	  if (isPowerOf2(carreraTextureImage.width) && isPowerOf2(carreraTextureImage.height)) {
+		 // Yes, it's a power of 2. Generate mips.
+		 gl.generateMipmap(gl.TEXTURE_2D);
+	  } else {
+		 // No, it's not a power of 2. Turn off mips and set wrapping to clamp to edge
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	  } 
+});
+
+
 /*================= Mouse events ======================*/
 var mouseDown=function(e) {
     drag=true;
@@ -371,12 +418,12 @@ function degToRad(d) {
 var modalitaGara = false;
 /*CAMERA INTERACTION*/
 var cameraInteraction = {
-	moveForward: false, moveBackward: false, moveLeft: false, moveRight: false, rotateUp: false, rotateDown: false, rotateRight: false, rotateLeft: false
+	moveForward: false, moveBackward: false, moveLeft: false, moveRight: false, moveUp: false, moveDown: false, rotateRight: false, rotateLeft: false, rotateUp: false, rotateDown: false
 }
 
-var runner_pz;
 fineCorsa_inc = 0.6;
 var movim_testa = 0.05;
+var lastFacingFrame = 0; // the last frame's value of facing
 function moveCamera(){
 		if (cameraInteraction.moveForward) {
 			moveForwardCameraPos(0.01+cameraSensibility);
@@ -395,25 +442,35 @@ function moveCamera(){
 			moveRightTarget(0.01+cameraSensibility);
 		}
 		if (cameraInteraction.rotateRight){
-			rotateTargetRight(degToRad(-5*cameraSensibility-0.5));
+			rotateTargetRight(degToRad(-5.5*cameraSensibility-0.5));
 		}
 		if (cameraInteraction.rotateLeft){
-			rotateTargetRight(degToRad(5*cameraSensibility+0.5));
+			rotateTargetRight(degToRad(5.5*cameraSensibility+0.5));
 		}
-		if (cameraInteraction.rotateUp){
-			//rotateTargetUp(degToRad(2));
+		if (cameraInteraction.moveUp){
 			moveUpCameraPos(0.005+cameraSensibility);
 			moveUpTarget(0.005+cameraSensibility);
 		}
-		if(cameraInteraction.rotateDown){
-			//rotateTargetUp(degToRad(-2));
+		if(cameraInteraction.moveDown){
 			moveUpCameraPos(-0.005-cameraSensibility);
 			moveUpTarget(-0.005-cameraSensibility);
 		}
+		if(cameraInteraction.rotateUp){
+			rotateTargetUp(degToRad(5.5*cameraSensibility+0.5));
+		}
+		if(cameraInteraction.rotateDown){
+			rotateTargetUp(degToRad(-5.5*cameraSensibility-0.5));
+		}
+		
 		if(modalitaGara){
-			if(lancioCarrera == false){
-				camera_pos = [0, 1.5, 3.7];
-				target = [0, 1.5, -5];
+			if(lancioCarrera == false){	//Qui sto pilotando la carrera, quindi aggiorno il target e la posizione camera in base al movimento della carrera
+				//Visuale spingitore
+				camera_pos = [px+3.5*Math.sin(degToRad(facing)), 1.5, pz+3.5*Math.cos(degToRad(facing))];		
+				target = [px-4*Math.sin(degToRad(facing)), 1.5, pz-4*Math.cos(degToRad(facing))];
+				realign();
+				//Visuale dall'alto
+				<!-- camera_pos = [0, 6, 10]; -->
+				<!-- target = [px-4*Math.sin(degToRad(facing)), 3, pz-4*Math.cos(degToRad(facing))]; -->
 				<!-- //Simulare il movimento della testa del corridore?! -->
 				<!-- if(key[0] == true){ -->
 					<!-- if (movim_testa <= 0.05 && movim_testa>-0) -->
@@ -421,15 +478,18 @@ function moveCamera(){
 					<!-- else -->
 					<!-- up = [movim_testa, 1, 0]; 	 -->
 				<!-- } -->
-				moveForwardCameraPos(-pz);		
-				moveForwardTarget(-pz);				
+				<!-- targetAngleUpdate = facing - lastFacingFrame; -->
+				<!-- camera_pos = m4.transformPoint(m4.axisRotation([0,1,0], -0.01*facing), camera_pos); -->
+				<!-- realign(); -->
+				<!-- console.log(camera_pos); -->
+				<!-- rotateTargetRight(0.01*facing); -->
+				<!-- moveForwardTarget(m4.distance([px,py,pz], [0,0,0]));				 -->
+				<!-- moveForwardCameraPos(m4.distance([px,py,pz], [0,0,0])); -->
+				<!-- lastFacingFrame = facing; -->
 			}else{ //Ho lanciato la macchinina quindi fermo gradualmente la camera (che simula lo spingitore che ha finito di spingere e smette di correre) 
-				camera_pos = [0, 1.5, 3.7];
-				target = [0, 1.5, -5];
-				runner_pz -= fineCorsa_inc;
-				fineCorsa_inc *= 0.95;
-				moveForwardCameraPos(-runner_pz);		
-				moveForwardTarget(-pz);
+				camera_pos = [camera_pos[0] - fineCorsa_inc*Math.sin(degToRad(facing)), 1.5, camera_pos[2] - fineCorsa_inc*Math.cos(degToRad(facing))];
+				fineCorsa_inc *= 0.96;
+				target = [px-4*Math.sin(degToRad(facing)), 1.5, pz-4*Math.cos(degToRad(facing))];
 			}
 		}
 }
@@ -438,7 +498,6 @@ function moveCamera(){
 function lancio(){
 	lancioCarrera = true;
 	incVelocitaLancio = true;
-	runner_pz = pz;		//memorizzo l'attuale posizione della camera (che simula lo spingitore).
 }
 
 function doKeyDown(e){
@@ -481,19 +540,33 @@ function doKeyDown(e){
 		}
 		// RIGHT ARROW
 		if (e.keyCode == 39){
-			cameraInteraction.rotateRight = true;
+			if(!modalitaGara)
+				cameraInteraction.rotateRight = true;
 		}
 		// LEFT ARROW
 		if (e.keyCode == 37){
-			cameraInteraction.rotateLeft = true;
+			if(!modalitaGara)
+				cameraInteraction.rotateLeft = true;
 		}
 		// UP ARROW
 		if (e.keyCode == 38){
-			cameraInteraction.rotateUp = true;
+			if(!modalitaGara)
+				cameraInteraction.moveUp = true;
 		}
 		// DOWN ARROW
 		if (e.keyCode == 40){
-			cameraInteraction.rotateDown = true;
+			if(!modalitaGara)
+				cameraInteraction.moveDown = true;
+		}
+		// NUM 8
+		if (e.keyCode == 104){
+			if(!modalitaGara)
+				cameraInteraction.rotateUp = true;
+		}
+		// NUM 5
+		if (e.keyCode == 101){
+			if(!modalitaGara)
+				cameraInteraction.rotateDown = true;
 		}
 		// SPACEBAR
 		if (e.keyCode == 32 && modalitaGara){
@@ -525,31 +598,49 @@ function doKeyUp(e){
          // THE A KEY
          //====================
          if (e.keyCode == 65) {
-			cameraInteraction.moveLeft = false;
-			key[1]=false;
+			if(!modalitaGara)
+				cameraInteraction.moveLeft = false;
+			else
+				key[1]=false;
 		}
          //====================
          // THE D KEY
          //====================
          if (e.keyCode == 68) {
-			cameraInteraction.moveRight = false;
-			key[3]=false;
+			if(!modalitaGara)
+				cameraInteraction.moveRight = false;
+			else
+				key[3]=false;
 		}
 		// RIGHT ARROW
 		if (e.keyCode == 39){
-			cameraInteraction.rotateRight = false;
+			if(!modalitaGara)
+				cameraInteraction.rotateRight = false;
 		}
 		// LEFT ARROW
 		if (e.keyCode == 37){
-			cameraInteraction.rotateLeft = false;
+			if(!modalitaGara)
+				cameraInteraction.rotateLeft = false;
 		}
 		// UP ARROW
 		if (e.keyCode == 38){
-			cameraInteraction.rotateUp = false;
+			if(!modalitaGara)
+				cameraInteraction.moveUp = false;
 		}
 		// DOWN ARROW
 		if (e.keyCode == 40){
-			cameraInteraction.rotateDown = false;
+			if(!modalitaGara)
+				cameraInteraction.moveDown = false;
+		}
+		// NUM 8
+		if (e.keyCode == 104){
+			if(!modalitaGara)
+				cameraInteraction.rotateUp = false;
+		}
+		// NUM 5
+		if (e.keyCode == 101){
+			if(!modalitaGara)
+				cameraInteraction.rotateDown = false;
 		}
 }
 
@@ -573,8 +664,8 @@ var render=function() {
 	gl.enable(gl.DEPTH_TEST);
 	//gl.enable(gl.CULL_FACE);
 	//gl.depthFunc(gl.LEQUAL);
-	<!-- gl.clearColor(1.0, 1.0, 1.0, 1);	 -->
-	gl.clearColor(0.043, 0.074, 0.376, 1);	
+	gl.clearColor(1.0, 1.0, 1.0, 1);	
+	<!-- gl.clearColor(0.043, 0.074, 0.376, 1);	 -->
 	/*to manage text on canvas and webgl */
 	// Clear the 2D canvas
 	//to manage text on canvas and webgl
@@ -594,8 +685,7 @@ var render=function() {
 
 	  //mo_matrix=m4.scale(mo_matrix,0.5,0.5,0.5);
 
-
-	if(meshes.length >= 1){	//Per ogni oggetto Mesh dentro all'array meshes, lo disegno. NOTA: All'array meshes viene aggiunto un oggetto mesh solo una volta che quest'ultima è stata caricata completamente, correttamente e ha già creato i propri Buffer.
+	if(meshes.length >= 1){	//Per ogni oggetto Mesh dentro all'array meshes, lo disegno. NOTA: All'array meshes viene aggiunto un oggetto mesh solo una volta che quest'ultima è stata caricata completamente, correttamente e ha già creato i propri Buffer.	
 		for(var i=0; i<meshes.length; i++){
 			switch(meshes[i].meshName){
 				case "fotocameraMesh":
@@ -606,15 +696,24 @@ var render=function() {
 					gl.useProgram(programList.textureProgram);
 					drawHighwaySignTexture(meshes[i]);
 					break;
+				case "carreraMesh":
+					gl.useProgram(programList.textureProgram);
+					drawCarreraTexture(meshes[i]);
+					break;
+				case "ruotaADMesh":
+				case "ruotaPDMesh":
+					gl.useProgram(programList.textureProgram);
+					drawRightWheelTexture(meshes[i]);
+					break;
 				default:
 					gl.useProgram(programList.standardProgram);
 					drawMesh(meshes[i]);
-					break;
 			}
 		}
-	}				
+	}
+	gl.useProgram(programList.standardProgram);
+	drawFloor(); // disegna il suolo
 
-	  drawFloor(); // disegna il suolo
 	//to manage text on canvas and webgl
 	  ctx.font = '18pt Calibri';
 	  ctx.fillStyle = 'green';
@@ -634,6 +733,7 @@ const FRAMES_PER_SECOND = 30;  // Valid values are 60,30,20,15,10...
 // set the mim time to render the next frame
 const FRAME_MIN_TIME = (1000/60) * (60 / FRAMES_PER_SECOND) - (1000/60) * 0.5;
 var lastFrameTime = 0;  // the last frame time
+
 function update(time){
     if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early
         //CarDoStep();

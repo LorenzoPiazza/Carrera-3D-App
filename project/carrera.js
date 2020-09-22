@@ -116,7 +116,7 @@ function CarreraInit(){
 
   velSterzo=3.4;         // A
 //  velSterzo=2.26;       // A
-  velRitornoSterzo=0.93; // B, sterzo massimo = A*B / (1-B)
+  velRitornoSterzo=0.89; // B, sterzo massimo = A*B / (1-B)
 
   accMax = 0.001;
   //accMax = 0.0055;
@@ -130,10 +130,10 @@ function CarreraInit(){
 
   // Nota: vel max = accMax*attritoZ / (1-attritoZ)
 
-  raggioRuotaA = 0.25;
-  raggioRuotaP = 0.25;
+  raggioRuotaA = 0.2495;
+  raggioRuotaP = 0.2495;
 
-  grip = 0.55; // quanto il facing macchina si adegua velocemente allo sterzo
+  grip = 0.35; // quanto il facing macchina si adegua velocemente allo sterzo
 }
 /*CARRERA DO STEP: facciamo un passo di fisica (a delta-t costante). Indipendente dal rendering.*/
 function CarreraDoStep(){
@@ -170,7 +170,7 @@ function CarreraDoStep(){
   // l'orientamento della macchina segue quello dello sterzo
   // (a seconda della velocita' sulla z)
   facing = facing - (vzm*grip)*sterzo;
-
+  
   // rotazione mozzo ruote (a seconda della velocita' sull'asse z della macchina):
   var da ; //delta angolo
   da=(180.0*vzm)/(Math.PI*raggioRuotaA);    //Ricavata dalla formula della velocità angolare (vedi slide 17 pacco progetto_car)

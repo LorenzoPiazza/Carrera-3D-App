@@ -86,6 +86,7 @@ function initPrograms(){
 	
 	/*======== Creo il programma per le Texture =====*/
 	programList.textureProgram = webglUtils.createProgramFromSources(gl, [textureVS, textureFS]);
+	/*======== Memorizzo le location dei suoi attribute e uniforms =====*/
 	textureProgramLocs = {
 			_position 	: gl.getAttribLocation(programList.textureProgram, "position"),
 			_texcoord	: gl.getAttribLocation(programList.textureProgram, "a_texcoord"),

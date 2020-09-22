@@ -85,7 +85,7 @@ function CarDoStep(){
 
   mo_matrix1=m4.xRotate(mo_matrix1, degToRad(45));
   gl.uniformMatrix4fv(_Mmatrix, false, mo_matrix1);
-  drawCube();
+  drawCube();0
  }
 
 function CarInit(){
