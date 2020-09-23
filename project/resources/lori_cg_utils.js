@@ -1,5 +1,5 @@
 /* get_target
- * Funzione che restituisce il le coordinate xyz di una geometria.
+ * Funzione che restituisce il le coordinate xyz del centro di una geometria.
  * Può essere utile per ottenere il target da passare alla m4.lookAt
  * */
 function get_target(){

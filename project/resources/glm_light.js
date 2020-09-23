@@ -804,6 +804,12 @@ Model.prototype.TranslateScale = function(scale, cx, cy, cz)
 	    //rewind(file);
 
 	    mesh = SecondPass(model, data, mesh);
+		
+		/*FOR DEBUG PURPOSE*/
+		console.log('Num di vertici: ' + mesh.nvert);
+		console.log('Num di facce: ' + mesh.nface);
+		console.log('Num di texcoord: ' + mesh.numtext);		
+		console.log('Num di normali: ' + mesh.numnorm);
 
 	    /* close the file */
 	    return mesh;
