@@ -21,11 +21,15 @@
 		#mainCanvas {
 			margin: 10px;
 			padding: 10px;
+			width: 100vw;		/*Per visualizzare la mainCanvas al 100% della grandezza dello schermo*/
+			height: 100vh;
+			display: block;
 			background: #ffffff;
-			border: thin inset #aaaaaa;
+			z-index : 1;
 		}
 		.container {  /*to manage text on canvas and webgl */
 		  position: relative;
+		  z-index: 2;
 		}
 		#text {. /*to manage text on canvas and webgl */
 		  background-color: transparent;  /* needed because we setcanvas bg color to white */
@@ -50,31 +54,45 @@
   <button id = "Button5">Increase fov</button>
   <button id = "Button6">Decrease fov</button>
   <p> </p>
-
-<div class="container">
+	
 	<canvas width="600" height="600" id="mainCanvas"></canvas>
+<div class="container">	
 	<!-- to manage text on canvas and webgl -->
-	<canvas width="600" height="150" id="text"></canvas>
+	<canvas width="600" height="200" id="text"></canvas>
+	<canvas width="150" height="200" id="touchCanvas1"></canvas>
+	<canvas width="150" height="200" id="touchCanvas2"></canvas>
 	<div id="uiContainer">
 	  <div id="ui">
 		<div id="cameraSensibility"></div>
 	  </div>
 	</div>
+	<div class="radioContainer">
+		<ul class="list">
+			<li class="list__item">
+				<input type="radio" class="radio-btn" name="modalita" id="scena" value="scena" checked onclick="changeMod(this)"/>
+				<label for="scena" class="label">Modalita' scena</label>
+			</li>
+			
+			<li class="list__item">
+				<input type="radio" class="radio-btn" name="modalita" id="gara" value="gara" onclick="changeMod(this)"/>
+				<label for="gara" class="label">Modalita' gara</label>
+			</li>
+		</ul>
+		<div id = "sceltaVisuale" hidden>
+			<ul class="list">
+				<li class="list__item">
+					<input type="radio" class="radio-btn" name="visuale" id="spingitore" value="spingitore" checked onclick="changeVisual(this)"/>
+					<label for="spingitore" class="label">Visuale spingitore</label>
+				</li>
+				<li class="list__item">
+					<input type="radio" class="radio-btn" name="visuale" id="alto" value="alto" onclick="changeVisual(this)"/>
+					<label for="alto" class="label">Visuale dall'alto</label>
+				</li>
+		</ul>
+		</div>
+	</div>
 </div>
 	
-<div class="radioContainer">
-	<ul class="list">
-		<li class="list__item">
-			<input type="radio" class="radio-btn" name="modalita" id="a-opt" value="scena" onclick="changeMod(this)"/>
-			<label for="a-opt" class="label">Modalita' scena</label>
-		</li>
-		
-		<li class="list__item">
-			<input type="radio" class="radio-btn" name="modalita" id="b-opt" value="gara" onclick="changeMod(this)"/>
-			<label for="b-opt" class="label">Modalita' gara</label>
-		</li>
-	</ul>
-</div>
 
 <script id="vertex-shader" type="not-javascript">
 attribute vec3 position;
@@ -100,6 +118,7 @@ void main(void) {
 <script type="text/javascript" src="resources/webgl-utils.js"></script>
 <script type="text/javascript" src="resources/m4.js"></script>
 <script type="text/javascript" src="resources/camera-utils.js"></script>
+<script type="text/javascript" src="resources/touchpad.js"></script>
 <script type="text/javascript" src="resources/webgl-lessons-ui.js"></script>
 <script type="text/javascript" src="resources/subdiv.js"></script>
 <script type="text/javascript" src="resources/glm_light.js"></script>
@@ -107,15 +126,37 @@ void main(void) {
 <script type="text/javascript" src="resources/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="shaders/shaders.js"></script>
 <script src="carrera.js"></script>
+
 <script>
 
 function changeMod(radioButton){
 	if(radioButton.value == "scena"){
 		modalitaGara = false;
 		initCamera();
+		touchCanvas2.addEventListener("mousedown", doMouseDown); 
+		touchCanvas2.addEventListener("mouseup", doMouseUp);
+		touchCanvas2.addEventListener("mousemove", doMouseMove2);
+		document.getElementById("sceltaVisuale").hidden = true;
+		document.getElementById('touchCanvas2').hidden = false;
 	}
-	else
+	else{
 		modalitaGara = true;
+		//nascondo e disabilito la canvas di rotazione visuale che non serve
+		document.getElementById('touchCanvas2').hidden = true;
+		touchCanvas2.removeEventListener("mousedown", doMouseDown); 
+		touchCanvas2.removeEventListener("mouseup", doMouseUp);
+		touchCanvas2.removeEventListener("mousemove", doMouseMove2);
+		document.getElementById("sceltaVisuale").hidden = false;
+	}
+}
+
+var visual = "spingitore";
+
+function changeVisual(radioButton){
+	if(radioButton.value == "spingitore")
+		visual = "spingitore";
+	else
+		visual = "alto";
 }
 
 function isPowerOf2(value) {
@@ -124,6 +165,7 @@ function isPowerOf2(value) {
 
 
 var canvas,gl,textCanvas,ctx;
+
 
 
 /*============= Creating a canvas ======================*/ //Creiamo 2 canvas, 1 per il testo e una per la macchina
@@ -139,6 +181,32 @@ textCanvas = document.getElementById("text");
 ctx = textCanvas.getContext("2d");
 
 
+
+//Creo le 2 canvas per la gestione del touch*/
+var touchCanvas1 = document.getElementById('touchCanvas1');
+var ctxTouchCanvas1 = touchCanvas1.getContext("2d");
+touchCanvas1.width = 200;
+touchCanvas1.height = 200;
+ctxTouchCanvas1.globalAlpha = 0.4;
+ctxTouchCanvas1.fillStyle = "grey";
+
+var touchCanvas2 = document.getElementById('touchCanvas2');
+var ctxTouchCanvas2 = touchCanvas2.getContext("2d");
+touchCanvas2.width = 200;
+touchCanvas2.height = 200;
+ctxTouchCanvas2.globalAlpha = 0.4;
+ctxTouchCanvas2.fillStyle = "grey";
+
+// Create an image object. This is not attached to the DOM and is not part of the page.
+var cursorImg = new Image();
+
+      cursorImg.onload = function() {
+         ctxTouchCanvas1.drawImage(cursorImg, -5, -5, 200, 200);
+		 ctxTouchCanvas2.drawImage(cursorImg, -5, -5, 200, 200);
+     };
+// Now set the source of the image that we want to load
+cursorImg.src = "./data/controller.png";
+	  
 
 //CREATE THE UI
 webglLessonsUI.setupSlider("#cameraSensibility", {value: 3, slide: updateCameraSensibility, min: 1, max: 10, step: 1});
@@ -262,25 +330,75 @@ ruotaTextureImage.addEventListener('load', function() {
 	  } 
 });
 
+// Texture della strada
+var stradaTexture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, stradaTexture);
+ 
+// Fill the texture with a 1x1 blue pixel.
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+			  new Uint8Array([0, 0, 255, 255]));
+
+// Asynchronously load an image
+var stradaTextureImage = new Image();
+stradaTextureImage.src = "data/stradaTexture2.jpg";
+stradaTextureImage.addEventListener('load', function() {
+	  // Now that the image has loaded make copy it to the texture.
+	  gl.bindTexture(gl.TEXTURE_2D, stradaTexture);
+	  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, stradaTextureImage);
+	  gl.generateMipmap(gl.TEXTURE_2D);
+	  
+	  // Check if the image is a power of 2 in both dimensions.
+	  if (isPowerOf2(stradaTextureImage.width) && isPowerOf2(stradaTextureImage.height)) {
+		 // Yes, it's a power of 2. Generate mips.
+		 gl.generateMipmap(gl.TEXTURE_2D);
+	  } else {
+		 // No, it's not a power of 2. Turn off mips and set wrapping to clamp to edge
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	  } 
+});
+
 /******* Variabili relative alla luce *******/
-var initial_LightPos = [3, 0, 0];
-var ambientLight = diffuseLight = specularLight = 1.0;	//Luce bianca
+var initial_LightPos = [5, 1, 0];
+var ambientLight = 0.6;
+var diffuseLight = 0.9;
+var specularLight = 1;	//Luce bianca
 /******* Creo i materiali ********/
 var defaultMaterial = {
 	name: "default",
 	ka: [0.8, 0.8, 0.8],
-	kd: [0.640000, 0.640000, 0.640000],
-	ks: [0.840000, 0.840000, 0.40000],
+	kd: [1, 1, 1],
+	ks: [0.840000, 0.840000, 0.840000],
 	shininessVal: 94.117647
+};
+
+var rubyMaterial = {
+	name: "rubyMaterial",
+	ka: [0.1745, 0.01175, 0.01175],
+	kd: [0.61424, 0.04136, 0.04136],
+	ks: [0.727811, 0.626959, 0.626959],
+	shininessVal: 90
 };	
+	
 var sunMaterial = {
 	name: "sunMaterial",
-	ka: [1, 1, 1],
+	ka: [1, 1, 0],
 	kd: [0.5, 0.5, 0.5],
 	ks: [0.1, 0.1, 0.1],
 	shininessVal: 90
 };	
 
+var roadMaterial = {
+	name: "roadMaterial",
+	ka: [0.25, 0.25, 0.25],
+	kd: [0.4, 0.4, 0.4],
+	ks: [0.774597, 0.774597, 0.774597],
+	shininessVal: 70.078431
+};	
+
+
+var fotocameraMeshPos = [-4, 2, 0];
 /***** INIT-CARICAMENTO MESH *****/
 function init(){
 	mo_matrix = m4.identity();
@@ -297,46 +415,24 @@ function init(){
 	loadMeshObj(2, ["ruotaASMesh", "ruotaPSMesh"], "./data/ruotaBlackTextured-L.obj", [ruotaAS_mo_matrix, ruotaPS_mo_matrix], defaultMaterial, ruotaTexture);
 	
 	//Carico la mesh fotocamera
-	var fotocamera_mo_matrix = m4.translate(mo_matrix, 0, 0, 0);
+	var fotocamera_mo_matrix = m4.lookAt(fotocameraMeshPos, [0,0,0], [0,1,0]);
 	loadMeshObj(1, ["fotocameraMesh"], "./data/fotocamera1.obj", [fotocamera_mo_matrix], defaultMaterial, fotocameraTexture);
 	
 	//Carico la mesh highwaySign
-	var highwaySign_mo_matrix = m4.scale(mo_matrix, 1, 1, 1);
-	highwaySign_mo_matrix = m4.translate(highwaySign_mo_matrix, 0, H-0.15, -15);	//H è l'altezza del piano stradale
-	loadMeshObj(1, ["highwaySignMesh"], "./data/highwaySignTextured.obj", [highwaySign_mo_matrix], defaultMaterial, highwaySignTexture);
+	var highwaySign_mo_matrix = m4.scale(mo_matrix, 0.5, 0.5, 0.5);
+	highwaySign_mo_matrix = m4.translate(highwaySign_mo_matrix, 0, -0.30, -15);	//H è l'altezza del piano stradale
+	loadMeshObj(1, ["highwaySignMesh"], "./data/highwaySignTextured.obj", [highwaySign_mo_matrix], rubyMaterial, highwaySignTexture);
 	//...QUI Carico eventuali altre mesh della scena...
 	
 	//Carico la mesh Sole
 	var sun_mo_matrix = m4.translate(mo_matrix, initial_LightPos[0], initial_LightPos[1], initial_LightPos[2]);
 	loadMeshObj(1, ["soleMesh"], "./data/sun.obj", [sun_mo_matrix], sunMaterial, null);
+	
+	//Carico la mesh strada
+	var strada_mo_matrix = 	m4.translate(mo_matrix, 0, -0.30, 0);
+	loadMeshObj(1, ["stradaMesh"], "./data/strada1.obj", [strada_mo_matrix], roadMaterial, stradaTexture);
 }
 
-
-//Disegno il piano stradale
-function drawFloor()
-{
-mo_matrix = m4.identity();
-
-gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer3);
-gl.vertexAttribPointer(standardProgramLocs._position, 3, gl.FLOAT, false,0,0);
-gl.enableVertexAttribArray(standardProgramLocs._position);
-
-gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer3);
-gl.vertexAttribPointer(standardProgramLocs._color, 3, gl.FLOAT, false,0,0) ;
-gl.enableVertexAttribArray(standardProgramLocs._color);	
-
-//SETUP DEGLI UNIFORM
-gl.uniformMatrix4fv(standardProgramLocs._Pmatrix, false, proj_matrix);
-gl.uniformMatrix4fv(standardProgramLocs._Vmatrix, false, view_matrix);
-gl.uniformMatrix4fv(standardProgramLocs._Mmatrix, false, mo_matrix);
-
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer3);
-
-gl.drawElements(gl.TRIANGLES, indices_floor.length, gl.UNSIGNED_SHORT, 0);
-
-gl.bindBuffer(gl.ARRAY_BUFFER, null); 
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-}
 
 //definizione parametri iniziali
 var aspect;
@@ -355,60 +451,6 @@ var mo_matrix, mo_matrix1;
 
 
 /*========== Defining and storing the geometry ==========*/
-var vertices=[
--1,-1,-1, 1,-1,-1, 1,1,-1, -1,1,-1,
--1,-1,1, 1,-1,1, 1,1,1, -1,1,1,
--1,-1,-1, -1,1,-1, -1,1,1, -1,-1,1,
-1,-1,-1, 1,1,-1, 1,1,1, 1,-1,1,
--1,-1,-1, -1,-1,1, 1,-1,1, 1,-1,-1,
--1,1,-1, -1,1,1, 1,1,1, 1,1,-1,];
-
-var colors=[
-   0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,
-   0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,
-   0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,
-   0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,
-   0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,
-   0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,  0.9,0.9,0.9,
-   ];
-var indices = [
-0,1,2, 0,2,3, 4,5,6, 4,6,7, 8,9,10, 8,10,11, 12,13,14,
-12,14,15, 16,17,18, 16,18,19, 20,21,22, 20,22,23 ];
-
-var vertices2=[
--1,-1,-1, 1,-1,-1, 1,1,-1, -1,1,-1, -1,-1,1, 1,-1,1, 1,1,1, -1,1,1,];
-var colors2=[
-   0,0,0,  0,0,0,  0,0,0,  0,0,0,
-   0,0,0,  0,0,0,  0,0,0,  0,0,0];
-var indices2 = [
- 0,1, 1,2, 2,3, 3,0, 4,5, 5,6, 6,7, 7,4, 1,5, 2,6, 3,7, 0,4];
-
-
-/*Definisco la geometria del piano stradale*/
-const S=6; // size
-const H=-0.15; // altezza
-var vertices_floor=[-S,H,-S-100, S,H,-S-100, S,H,S+100, -S,H,S+100];
-var colors_floor=[0.7,0.7,0.7,  0.7,0.7,0.7,  0.7,0.7,0.7,  0.7,0.7,0.7];
-var indices_floor = [0,1,2, 0,2,3,];
-
-
-
-var vertex_buffer3 = gl.createBuffer ();
-gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer3);
-gl.bufferData(gl.ARRAY_BUFFER,
-new Float32Array(vertices_floor), gl.STATIC_DRAW);
-// Create and store data into color buffer
-var color_buffer3 = gl.createBuffer ();
-gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer3);
-gl.bufferData(gl.ARRAY_BUFFER,
-new Float32Array(colors_floor), gl.STATIC_DRAW);
-// Create and store data into index buffer
-var index_buffer3= gl.createBuffer ();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer3);
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices_floor), gl.STATIC_DRAW);
-
-var vertex_buffer_carrera = gl.createBuffer();
-var index_buffer_carrera= gl.createBuffer ();
 
 
 //usa libreria webgl-utils.js
@@ -456,7 +498,7 @@ canvas.onmousemove=mouseMove;
 window.addEventListener('keydown', doKeyDown, true);
 window.addEventListener('keyup', doKeyUp, true);
 
-aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+
 
 
 function degToRad(d) {
@@ -515,13 +557,15 @@ function moveCamera(){
 		
 		if(modalitaGara){
 			if(lancioCarrera == false){	//Qui sto pilotando la carrera, quindi aggiorno il target e la posizione camera in base al movimento della carrera
-				//Visuale spingitore
-				camera_pos = [px+3.5*Math.sin(degToRad(facing)), 1.5, pz+3.5*Math.cos(degToRad(facing))];		
-				target = [px-4*Math.sin(degToRad(facing)), 1.5, pz-4*Math.cos(degToRad(facing))];
-				realign();
-				//Visuale dall'alto
-				<!-- camera_pos = [0, 6, 10]; -->
-				<!-- target = [px-4*Math.sin(degToRad(facing)), 3, pz-4*Math.cos(degToRad(facing))]; -->
+				if(visual == "spingitore"){ //Visuale spingitore
+					camera_pos = [px+3.5*Math.sin(degToRad(facing)), 1.5, pz+3.5*Math.cos(degToRad(facing))];		
+					target = [px-4*Math.sin(degToRad(facing)), 1.5, pz-4*Math.cos(degToRad(facing))];
+					realign();
+				}else{	//Visuale dall'alto
+					camera_pos = [px+10.5*Math.sin(degToRad(facing)), 3, pz+10.5*Math.cos(degToRad(facing))];
+					target = [px-5*Math.sin(degToRad(facing)), 0, pz-5*Math.cos(degToRad(facing))];
+					realign();
+				}
 				<!-- //Simulare il movimento della testa del corridore?! -->
 				<!-- if(key[0] == true){ -->
 					<!-- if (movim_testa <= 0.05 && movim_testa>-0) -->
@@ -538,9 +582,9 @@ function moveCamera(){
 				<!-- moveForwardCameraPos(m4.distance([px,py,pz], [0,0,0])); -->
 				<!-- lastFacingFrame = facing; -->
 			}else{ //Ho lanciato la macchinina quindi fermo gradualmente la camera (che simula lo spingitore che ha finito di spingere e smette di correre) 
-				camera_pos = [camera_pos[0] - fineCorsa_inc*Math.sin(degToRad(facing)), 1.5, camera_pos[2] - fineCorsa_inc*Math.cos(degToRad(facing))];
+				camera_pos = [camera_pos[0] - fineCorsa_inc*Math.sin(degToRad(facing)), camera_pos[1], camera_pos[2] - fineCorsa_inc*Math.cos(degToRad(facing))];
 				fineCorsa_inc *= 0.96;
-				target = [px-4*Math.sin(degToRad(facing)), 1.5, pz-4*Math.cos(degToRad(facing))];
+				target = [px-4*Math.sin(degToRad(facing)), target[1], pz-4*Math.cos(degToRad(facing))];
 			}
 		}
 }
@@ -700,15 +744,23 @@ function updateCameraSensibility(event, ui){
     cameraSensibility = 0.05*ui.value;
 }
 
+	console.log(canvas.width, canvas.height)
+	console.log(canvas.clientWidth, canvas.clientHeight);
+	console.log(gl.drawingBufferWidth, gl.drawingBufferHeight);
 var proj_matrix, view_matrix, lightMmatrix;
+
+
 var render=function() {
+
+	webglUtils.resizeCanvasToDisplaySize(canvas);
+	gl.viewport(0.0, 0.0, canvas.width, canvas.height);
+	aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+	
 	//set projection matrix
 	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax);
 	//set view matrix
 	moveCamera();
-	//var w_pos = [D*Math.sin(PHI)*Math.cos(THETA),
-			   //   D*Math.sin(PHI)*Math.sin(THETA),
-				  //D*Math.cos(PHI)];
+
 				  
 	view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
 
@@ -719,23 +771,15 @@ var render=function() {
 	<!-- gl.clearColor(0.043, 0.074, 0.376, 1);	 -->
 	gl.clearColor(0.8235, 0.9137, 0.9764, 1);	//sky color
 	/*to manage text on canvas and webgl */
+	
 	// Clear the 2D canvas
 	//to manage text on canvas and webgl
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
+	
+	
 	gl.clearDepth(1.0);
-	gl.viewport(0.0, 0.0, canvas.width, canvas.height);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);		//Cancello sia il frame buffer che i depth buffer
 
-
-	  //drawAxis(); // disegna assi frame OGGETTO
-	  //disegna il cubo base anziche' la macchina
-	  //drawCubeWire();
-
-	//  if (!drag)
-	//    mozzo-=mozzo_step;
-
-	  //mo_matrix=m4.scale(mo_matrix,0.5,0.5,0.5);
 	
 	if(meshes.length >= 1){	//Per ogni oggetto Mesh dentro all'array meshes, lo disegno. NOTA: All'array meshes viene aggiunto un oggetto mesh solo una volta che quest'ultima è stata caricata completamente, correttamente e ha già creato i propri Buffer.	
 		for(var i=0; i<meshes.length; i++){
@@ -765,8 +809,6 @@ var render=function() {
 			drawLightTextureMesh(meshes[i]);
 		}
 	}
-	gl.useProgram(programList.standardProgram);
-	drawFloor(); // disegna il suolo
 
 	//to manage text on canvas and webgl
 	  ctx.font = '18pt Calibri';
@@ -791,10 +833,12 @@ var lastFrameTime = 0;  // the last frame time
 
 function update(time){
     if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early
-        //CarDoStep();
+		
 		lightPos = initial_LightPos;
-		lightMmatrix = m4.yRotation(time*0.0008, lightMmatrix);
-		lightPos = m4.transformPoint(lightMmatrix, lightPos);
+		if(!modalitaGara){
+			lightMmatrix = m4.yRotation(time*0.0008, lightMmatrix);
+			lightPos = m4.transformPoint(lightMmatrix, lightPos);
+		}
 		CarreraDoStep();
         window.requestAnimationFrame(update);
         return; // return as there is nothing to do
@@ -810,6 +854,17 @@ initCamera();
 CarreraInit();
 update(); // start animation
 window.requestAnimationFrame(update);
+
+
+window.onload = function setListener() {
+	touchCanvas1.addEventListener("mousedown", doMouseDown); 
+	touchCanvas1.addEventListener("mouseup", doMouseUp);
+	touchCanvas1.addEventListener("mousemove", doMouseMove1);
+	touchCanvas2.addEventListener("mousedown", doMouseDown); 
+	touchCanvas2.addEventListener("mouseup", doMouseUp);
+	touchCanvas2.addEventListener("mousemove", doMouseMove2);
+    window.addEventListener("mouseup", doMouseUp);
+}
 
          </script>
    </body>

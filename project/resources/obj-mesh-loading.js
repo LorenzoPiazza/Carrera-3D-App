@@ -10,7 +10,7 @@
  */
  
 var meshes = [];		//Array di oggetti in cui memorizzo tutte le mesh della scena
-var fotocameraMeshPos = [-4, 2, 0];
+
 
 function Mesh(meshName, meshData, initial_mo_matrix, material, texture) {
 	//CREO I BUFFER per questa mesh
@@ -316,40 +316,46 @@ function drawRightWheelTexture(item){
 function drawLightTextureMesh(item){
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
 	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
-	
-	if(item.meshName == "fotocameraMesh"){
-		mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos, [px,py,pz], [0,1,0]));	//Sfrutto la matrice lookAt come matrice di movimento per far seguire alla fotocamera la macchina
-		//Scommentare la prossima riga e sostituire alla riga sopra per far anche muovere la fotocameraMesh oltre ad orientarla.
-		//mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos[0]+px, fotocameraMeshPos[1]+py, fotocameraMeshPos[2]+pz], [px,py,pz], [0,1,0]));
-	}
-	if(item.meshName == "highwaySignMesh"){
-		mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
-	}
-	if(item.meshName == "soleMesh"){
-		mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
-	}
-	
+		
 	if(modalitaGara){
-		if(item.meshName == "carreraMesh"){
-			mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //Setto la posizione iniziale della Mesh
-			mo_matrix = m4.translate(mo_matrix, px, py, pz);			//Traslazione della carrera
-			mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//Orientamento in base allo sterzo
+		switch (item.meshName){
+			case "carreraMesh":
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //Setto la posizione iniziale della Mesh
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//Traslazione della carrera
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//Orientamento in base allo sterzo
+				break;	
+			case "ruotaADMesh":
+			case "ruotaASMesh":
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
+				mo_matrix = m4.yRotate(mo_matrix,degToRad(sterzo));			//1. Rotazione attorno all'asse Y dovuta dallo sterzo
+				mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
+				break;
+			case "ruotaPDMesh":
+			case "ruotaPSMesh":
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
+				mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
+				break;
+			case "fotocameraMesh":
+				mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos, [px,py,pz], [0,1,0]));	//Sfrutto la matrice lookAt come matrice di movimento per far seguire alla fotocamera la macchina
+				//Scommentare la prossima riga e sostituire alla riga sopra per far anche muovere la fotocameraMesh oltre ad orientarla.
+				//mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos[0]+px, fotocameraMeshPos[1]+py, fotocameraMeshPos[2]+pz], [px,py,pz], [0,1,0]));
+				break;
+			default:
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 		}		
-		if(item.meshName == "ruotaADMesh" || item.meshName == "ruotaASMesh"){
-			mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
-			mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
-			mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
-			mo_matrix = m4.yRotate(mo_matrix,degToRad(sterzo));			//1. Rotazione attorno all'asse Y dovuta dallo sterzo
-			mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
-		}
-		if(item.meshName == "ruotaPDMesh" || item.meshName == "ruotaPSMesh"){
-			mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
-			mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
-			mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
-			mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
-		}	
 	} else{
-		mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+		switch (item.meshName){
+			case "soleMesh":
+				mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+				break;
+			default:
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+		}
 	}
 	
 	//SETUP degli ATTRIBUTE

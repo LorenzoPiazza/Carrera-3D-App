@@ -6,7 +6,7 @@
  const standardVS = `
 					attribute vec3 position;
 					uniform mat4 Pmatrix;
-					uniform mat4 Vmatrix;
+					uniform mat4 Vmatrix;	
 					uniform mat4 Mmatrix;
 					attribute vec3 color;//the color of the point
 					varying vec3 vColor;
@@ -98,10 +98,9 @@
 						void main() {
 							vec3 N = normalize(fragNormalInterp);
 							vec3 L = normalize(lightPos - fragVertPos);		//Vettore L ottenuto come differenza di punti
-							// Calcolo il prodotto L dot N e lo tengo solo se il cos è positivo
-							float lambertian = max(dot(N, L), 0.0);
+							float lambertian = max(dot(L, N), 0.0);			// Prodotto scalare tra L e N
 							float specular = 0.0;
-							if(lambertian > 0.0) {
+							if(lambertian > 0.0) {	//Calcolo la componente speculare solo se lambertian è positivo, perchè altrimenti stiamo considerando un vertice in ombra (che avrà quindi componente diffusa e speculare a 0).
 								vec3 R = reflect(-L, N); // Reflected light vector
 								vec3 V = normalize(-fragVertPos); // Vector to viewer
 								// Compute the specular term
@@ -110,7 +109,7 @@
 							}
 							if (mode == 1){		//Il colore del fragment è condizionato dall'illuminazione ma anche dalla texture
 								vec4 textureColor = texture2D(u_texture, v_texcoord);									
-								gl_FragColor = vec4( (Ka * ambientLight + Kd * diffuseLight * lambertian) * textureColor.rgb + Ks * specularLight * specular, textureColor.a);
+								gl_FragColor = vec4( (Ka * ambientLight + Kd * diffuseLight * lambertian) * textureColor.rgb + Ks * specularLight * specular, 1.0);
 							}
 							else{	//Il colore del fragment è condizionato solo dall'illuminazione
 								gl_FragColor = vec4(Ka * ambientLight +

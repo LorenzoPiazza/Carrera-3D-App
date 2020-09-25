@@ -114,9 +114,9 @@ function CarreraInit(){
   lancioCarrera = false;
   incVelocitaLancio = false;
 
-  velSterzo=3.4;         // A
+  velSterzo=3.2;         // A
 //  velSterzo=2.26;       // A
-  velRitornoSterzo=0.89; // B, sterzo massimo = A*B / (1-B)
+  velRitornoSterzo=0.84; // B, sterzo massimo = A*B / (1-B)
 
   accMax = 0.001;
   //accMax = 0.0055;

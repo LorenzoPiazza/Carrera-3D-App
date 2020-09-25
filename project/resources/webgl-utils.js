@@ -763,11 +763,11 @@
    */
   function resizeCanvasToDisplaySize(canvas, multiplier) {
     multiplier = multiplier || 1;
-    const width  = canvas.clientWidth  * multiplier | 0;
-    const height = canvas.clientHeight * multiplier | 0;
-    if (canvas.width !== width ||  canvas.height !== height) {
-      canvas.width  = width;
-      canvas.height = height;
+    const displayWidth    = canvas.clientWidth  * multiplier | 0;
+    const displayHeight	  = canvas.clientHeight * multiplier | 0;
+    if (canvas.width !== displayWidth   ||  canvas.height !== displayHeight) {
+      canvas.width  = displayWidth  ;
+      canvas.height = displayHeight;
       return true;
     }
     return false;
