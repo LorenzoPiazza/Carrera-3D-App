@@ -19,24 +19,29 @@
 			background: #dddddd;
 		}
 		#mainCanvas {
-			margin: 10px;
-			padding: 10px;
-			width: 100vw;		/*Per visualizzare la mainCanvas al 100% della grandezza dello schermo*/
-			height: 100vh;
+			margin: auto;
 			display: block;
-			background: #ffffff;
+			background: #000099;
 			z-index : 1;
 		}
 		.container {  /*to manage text on canvas and webgl */
+		  margin: auto;
+		  padding: 10px;
+		  height: 100vh;
+		  width: 100vw;
 		  position: relative;
-		  z-index: 2;
+		  z-index: 2	;
 		}
-		#text {. /*to manage text on canvas and webgl */
+		#text { /*to manage text on canvas and webgl */
 		  background-color: transparent;  /* needed because we setcanvas bg color to white */
 		  position: absolute;
-		  left: 100px;
+		  left: 50px;
 		  top: 10px;
 		  z-index: 10;
+		}
+		
+		#touchCanvas1, touchCanvas2 {
+		  z-index: 2;
 		}
 		<!-- canvas { -->
 			<!-- background-color: #fff; -->
@@ -46,21 +51,21 @@
    </head>
    
 <body>
-  <p> </p>
-  <button id = "Button1">Increase D</button>
-  <button id = "Button2">Decrease D</button>
-  <button id = "Button3">Increase Zm</button>
-  <button id = "Button4">Decrease Zm</button>
-  <button id = "Button5">Increase fov</button>
-  <button id = "Button6">Decrease fov</button>
-  <p> </p>
+  <!-- <p> </p> -->
+  <!-- <button id = "Button1">Increase D</button> -->
+  <!-- <button id = "Button2">Decrease D</button> -->
+  <!-- <button id = "Button3">Increase Zm</button> -->
+  <!-- <button id = "Button4">Decrease Zm</button> -->
+  <!-- <button id = "Button5">Increase fov</button> -->
+  <!-- <button id = "Button6">Decrease fov</button> -->
+  <!-- <p> </p> -->
 	
-	<canvas width="600" height="600" id="mainCanvas"></canvas>
 <div class="container">	
+	<canvas width="600" height="200" id="text">Your browser does not support canvas</canvas>
+	<canvas width="900" height="600" id="mainCanvas"></canvas>
+	<canvas width="200" height="200" id="touchCanvas1"></canvas>
+	<canvas width="200" height="200" id="touchCanvas2"></canvas>
 	<!-- to manage text on canvas and webgl -->
-	<canvas width="600" height="200" id="text"></canvas>
-	<canvas width="150" height="200" id="touchCanvas1"></canvas>
-	<canvas width="150" height="200" id="touchCanvas2"></canvas>
 	<div id="uiContainer">
 	  <div id="ui">
 		<div id="cameraSensibility"></div>
@@ -238,6 +243,8 @@ fotocameraTextureImage.addEventListener('load', function() {
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
 	  } 
 });
 
@@ -267,6 +274,7 @@ highwaySignTextureImage.addEventListener('load', function() {
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	  } 
 });
 
@@ -297,6 +305,7 @@ carreraTextureImage.addEventListener('load', function() {
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	  } 
 });
 
@@ -327,6 +336,7 @@ ruotaTextureImage.addEventListener('load', function() {
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	  } 
 });
 
@@ -356,18 +366,20 @@ stradaTextureImage.addEventListener('load', function() {
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	  } 
 });
 
 /******* Variabili relative alla luce *******/
 var initial_LightPos = [5, 1, 0];
-var ambientLight = 0.6;
-var diffuseLight = 0.9;
-var specularLight = 1;	//Luce bianca
+var lightPos = initial_LightPos;
+var ambientLight = 0.5;
+var diffuseLight = 0.8;
+var specularLight = 0.9;	//Luce bianca
 /******* Creo i materiali ********/
 var defaultMaterial = {
 	name: "default",
-	ka: [0.8, 0.8, 0.8],
+	ka: [0.85, 0.85, 0.9],
 	kd: [1, 1, 1],
 	ks: [0.840000, 0.840000, 0.840000],
 	shininessVal: 94.117647
@@ -378,23 +390,23 @@ var rubyMaterial = {
 	ka: [0.1745, 0.01175, 0.01175],
 	kd: [0.61424, 0.04136, 0.04136],
 	ks: [0.727811, 0.626959, 0.626959],
-	shininessVal: 90
+	shininessVal: 28
 };	
 	
 var sunMaterial = {
 	name: "sunMaterial",
 	ka: [1, 1, 0],
-	kd: [0.5, 0.5, 0.5],
+	kd: [1, 1, 0],
 	ks: [0.1, 0.1, 0.1],
-	shininessVal: 90
+	shininessVal: 1
 };	
 
 var roadMaterial = {
 	name: "roadMaterial",
-	ka: [0.25, 0.25, 0.25],
+	ka: [0.45, 0.35, 0.35],
 	kd: [0.4, 0.4, 0.4],
 	ks: [0.774597, 0.774597, 0.774597],
-	shininessVal: 70.078431
+	shininessVal: 50.078431
 };	
 
 
@@ -460,43 +472,42 @@ initPrograms();
 
 
 /*================= Mouse events ======================*/
-var mouseDown=function(e) {
-    drag=true;
-    old_x=e.pageX, old_y=e.pageY;
-    e.preventDefault();
-    return false;
-};
+<!-- var mouseDown=function(e) { -->
+    <!-- drag=true; -->
+    <!-- old_x=e.pageX, old_y=e.pageY; -->
+    <!-- e.preventDefault(); -->
+    <!-- return false; -->
+<!-- }; -->
 
-var mouseUp=function(e){
-   drag=false;
-};
+<!-- var mouseUp=function(e){ -->
+   <!-- drag=false; -->
+<!-- }; -->
 
-var mouseMove=function(e) {
-if (!drag) return false;
-dX=-(e.pageX-old_x)*2*Math.PI/canvas.width;
-dY=-(e.pageY-old_y)*2*Math.PI/canvas.height;
-//console.log('stampa',dX,dY);
-THETA+=dX;
-PHI+=dY;
-old_x=e.pageX, old_y=e.pageY;
-e.preventDefault();
-render();
-};
+<!-- var mouseMove=function(e) { -->
+<!-- if (!drag) return false; -->
+<!-- dX=-(e.pageX-old_x)*2*Math.PI/canvas.width; -->
+<!-- dY=-(e.pageY-old_y)*2*Math.PI/canvas.height; -->
+<!-- //console.log('stampa',dX,dY); -->
+<!-- THETA+=dX; -->
+<!-- PHI+=dY; -->
+<!-- old_x=e.pageX, old_y=e.pageY; -->
+<!-- e.preventDefault(); -->
+<!-- render(); -->
+<!-- }; -->
 
 
-document.getElementById("Button1").onclick = function(){D *= 1.1};
-document.getElementById("Button2").onclick = function(){D *= 0.9};
-document.getElementById("Button3").onclick = function(){zmin  *= 1.1; zmax *= 1.1};
-document.getElementById("Button4").onclick = function(){zmin *= 0.9; zmax *= 0.9};
-document.getElementById("Button5").onclick = function(){fov  *= 1.1; fov *= 1.1};
-document.getElementById("Button6").onclick = function(){fov *= 0.9; fov *= 0.9};
+<!-- document.getElementById("Button1").onclick = function(){D *= 1.1}; -->
+<!-- document.getElementById("Button2").onclick = function(){D *= 0.9}; -->
+<!-- document.getElementById("Button3").onclick = function(){zmin  *= 1.1; zmax *= 1.1}; -->
+<!-- document.getElementById("Button4").onclick = function(){zmin *= 0.9; zmax *= 0.9}; -->
+<!-- document.getElementById("Button5").onclick = function(){fov  *= 1.1; fov *= 1.1}; -->
+<!-- document.getElementById("Button6").onclick = function(){fov *= 0.9; fov *= 0.9}; -->
 
-canvas.onmousedown=mouseDown;
-canvas.onmouseup=mouseUp;
-canvas.mouseout=mouseUp;
-canvas.onmousemove=mouseMove;
-window.addEventListener('keydown', doKeyDown, true);
-window.addEventListener('keyup', doKeyUp, true);
+<!-- canvas.onmousedown=mouseDown; -->
+<!-- canvas.onmouseup=mouseUp; -->
+<!-- canvas.mouseout=mouseUp; -->
+<!-- canvas.onmousemove=mouseMove; -->
+
 
 
 
@@ -777,10 +788,19 @@ var render=function() {
 	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	
 	
-	gl.clearDepth(1.0);
+	gl.clearDepth(1.0);	//Inizializzo il Depth Buffer
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);		//Cancello sia il frame buffer che i depth buffer
 
 	
+	gl.useProgram(programList.lightTextureProgram);
+	//SETUP DEGLI UNIFORM costanti nell'uso del programma. Gli uniform infatti sono a livello di programma quindi se non cambiano posso settarli una volta sola.
+	gl.uniformMatrix4fv(lightTextureProgramLocs._Pmatrix, false, proj_matrix);
+	gl.uniformMatrix4fv(lightTextureProgramLocs._Vmatrix, false, view_matrix);
+	//Uniform relativi alla luce: Posso farli anche una sola volta fuori dalla drawLightTextureMesh?
+	gl.uniform3fv(lightTextureProgramLocs._lightPos, lightPos);
+	gl.uniform1f(lightTextureProgramLocs._ambientLight, ambientLight);
+	gl.uniform1f(lightTextureProgramLocs._diffuseLight, diffuseLight);
+	gl.uniform1f(lightTextureProgramLocs._specularLight, specularLight);
 	if(meshes.length >= 1){	//Per ogni oggetto Mesh dentro all'array meshes, lo disegno. NOTA: All'array meshes viene aggiunto un oggetto mesh solo una volta che quest'ultima è stata caricata completamente, correttamente e ha già creato i propri Buffer.	
 		for(var i=0; i<meshes.length; i++){
 			<!-- switch(meshes[i].meshName){ -->
@@ -805,7 +825,6 @@ var render=function() {
 			<!-- gl.useProgram(programList.standardProgram); -->
 			<!-- drawMesh(meshes[i]); -->
 			<!-- } -->
-			gl.useProgram(programList.lightTextureProgram);
 			drawLightTextureMesh(meshes[i]);
 		}
 	}
@@ -832,14 +851,12 @@ const FRAME_MIN_TIME = (1000/60) * (60 / FRAMES_PER_SECOND) - (1000/60) * 0.5;
 var lastFrameTime = 0;  // the last frame time
 
 function update(time){
-    if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early
-		
+    if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early		
 		lightPos = initial_LightPos;
 		if(!modalitaGara){
 			lightMmatrix = m4.yRotation(time*0.0008, lightMmatrix);
 			lightPos = m4.transformPoint(lightMmatrix, lightPos);
-		}
-		CarreraDoStep();
+		} else{	CarreraDoStep(); }
         window.requestAnimationFrame(update);
         return; // return as there is nothing to do
     }
@@ -864,6 +881,8 @@ window.onload = function setListener() {
 	touchCanvas2.addEventListener("mouseup", doMouseUp);
 	touchCanvas2.addEventListener("mousemove", doMouseMove2);
     window.addEventListener("mouseup", doMouseUp);
+	window.addEventListener('keydown', doKeyDown, true);
+	window.addEventListener('keyup', doKeyUp, true);
 }
 
          </script>

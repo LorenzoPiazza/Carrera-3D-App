@@ -381,9 +381,8 @@ function drawLightTextureMesh(item){
 	} else{
 		gl.uniform1i(lightTextureProgramLocs._mode, 0);
 	}	
-	//SETUP DEGLI UNIFORM
-	gl.uniformMatrix4fv(lightTextureProgramLocs._Pmatrix, false, proj_matrix);
-	gl.uniformMatrix4fv(lightTextureProgramLocs._Vmatrix, false, view_matrix);
+	//SETUP DEGLI UNIFORM (qui setto solo quelli che cambiano di mesh in mesh. Quelli che restano costanti per tutto l'uso del programma li setto una volta sola nella funzione render)
+
 	gl.uniformMatrix4fv(lightTextureProgramLocs._Mmatrix, false, mo_matrix);
 	gl.uniformMatrix4fv(lightTextureProgramLocs._normalMat, false, m4.transpose(m4.inverse(mo_matrix)));	
 	
@@ -392,11 +391,7 @@ function drawLightTextureMesh(item){
 	gl.uniform3fv(lightTextureProgramLocs._ks,  item.material.ks);
 	gl.uniform1f(lightTextureProgramLocs._shininessVal, item.material.shininessVal);
 	
-	//Uniform relativi alla luce: Posso farli anche una sola volta fuori dalla drawLightTextureMesh?
-	gl.uniform3fv(lightTextureProgramLocs._lightPos, lightPos);
-	gl.uniform1f(lightTextureProgramLocs._ambientLight, ambientLight);
-	gl.uniform1f(lightTextureProgramLocs._diffuseLight, diffuseLight);
-	gl.uniform1f(lightTextureProgramLocs._specularLight, specularLight);
+
 	
 	//DISEGNO
 	gl.drawArrays(gl.TRIANGLES, 0, 3*item.meshData.nface);

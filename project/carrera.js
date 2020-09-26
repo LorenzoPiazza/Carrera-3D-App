@@ -184,10 +184,21 @@ function CarreraDoStep(){
   vz = -sinf*vxm + cosf*vzm;
 
   // posizione = posizione + velocita * delta t (ma e' delta t costante = 1)
-  px+=vx;
-  py+=vy;
-  pz+=vz;
-	//console.log(pz);
+  controllaCollisioni();
+  // px+=vx;
+  // py+=vy;
+  // pz+=vz;
+	if(px+Math.abs(2*Math.cos(facing)) > 3 || px-Math.abs(2*Math.cos(facing)) < -3)
+		px-=vx;
+	else
+		px+=vx;
+	
+	py+=vy;
+	pz+=vz;
+	console.log(px);
   // console.log("vz: " +vz);
   // console.log("vzm: " +vzm);
+}
+
+function controllaCollisioni(){
 }
