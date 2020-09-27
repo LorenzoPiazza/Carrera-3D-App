@@ -99,27 +99,6 @@
 </div>
 	
 
-<script id="vertex-shader" type="not-javascript">
-attribute vec3 position;
-uniform mat4 Pmatrix;
-uniform mat4 Vmatrix;
-uniform mat4 Mmatrix;
-attribute vec3 color;//the color of the point
-varying vec3 vColor;
-void main(void) { //pre-built function
-  gl_Position = Pmatrix*Vmatrix*Mmatrix*vec4(position, 1.);
-  vColor=color;
-}
-</script>
-
-<script id="fragment-shader" type="not-javascript">
-precision mediump float;
-varying vec3 vColor;
-void main(void) {
-  gl_FragColor = vec4(vColor, 1.);
-}
-</script>
-
 <script type="text/javascript" src="resources/webgl-utils.js"></script>
 <script type="text/javascript" src="resources/m4.js"></script>
 <script type="text/javascript" src="resources/camera-utils.js"></script>
@@ -128,6 +107,7 @@ void main(void) {
 <script type="text/javascript" src="resources/subdiv.js"></script>
 <script type="text/javascript" src="resources/glm_light.js"></script>
 <script type="text/javascript" src="resources/obj-mesh-loading.js"></script>
+<script type="text/javascript" src="resources/shadow.js"></script>
 <script type="text/javascript" src="resources/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="shaders/shaders.js"></script>
 <script src="carrera.js"></script>
@@ -179,6 +159,7 @@ gl = canvas.getContext('webgl');
 if(!gl){
 	alert("Your browser does not support WebGL!");
 }
+
 //to manage text on canvas and webgl
 // look up the text canvas.
 textCanvas = document.getElementById("text");
@@ -212,6 +193,10 @@ var cursorImg = new Image();
 // Now set the source of the image that we want to load
 cursorImg.src = "./data/controller.png";
 	  
+//Variabili necessarie per il disegno ombre
+var shadow_frame_buffer, lightViewMatrix;
+if(isShadowAvailable())
+ shadow_frame_buffer = _createFrameBufferObject(gl,512, 512);
 
 //CREATE THE UI
 webglLessonsUI.setupSlider("#cameraSensibility", {value: 3, slide: updateCameraSensibility, min: 1, max: 10, step: 1});
@@ -371,7 +356,7 @@ stradaTextureImage.addEventListener('load', function() {
 });
 
 /******* Variabili relative alla luce *******/
-var initial_LightPos = [5, 1, 0];
+var initial_LightPos = [20, 16, 5];
 var lightPos = initial_LightPos;
 var ambientLight = 0.5;
 var diffuseLight = 0.8;
@@ -432,7 +417,7 @@ function init(){
 	
 	//Carico la mesh highwaySign
 	var highwaySign_mo_matrix = m4.scale(mo_matrix, 0.5, 0.5, 0.5);
-	highwaySign_mo_matrix = m4.translate(highwaySign_mo_matrix, 0, -0.30, -15);	//H è l'altezza del piano stradale
+	highwaySign_mo_matrix = m4.translate(highwaySign_mo_matrix, 0, -0.30, -15);
 	loadMeshObj(1, ["highwaySignMesh"], "./data/highwaySignTextured.obj", [highwaySign_mo_matrix], rubyMaterial, highwaySignTexture);
 	//...QUI Carico eventuali altre mesh della scena...
 	
@@ -441,7 +426,7 @@ function init(){
 	loadMeshObj(1, ["soleMesh"], "./data/sun.obj", [sun_mo_matrix], sunMaterial, null);
 	
 	//Carico la mesh strada
-	var strada_mo_matrix = 	m4.translate(mo_matrix, 0, -0.30, 0);
+	var strada_mo_matrix = 	m4.translate(mo_matrix, 0, -0.15, 0);
 	loadMeshObj(1, ["stradaMesh"], "./data/strada1.obj", [strada_mo_matrix], roadMaterial, stradaTexture);
 }
 
@@ -449,7 +434,7 @@ function init(){
 //definizione parametri iniziali
 var aspect;
 var zmin = 1;
-var zmax = 100;
+var zmax = 150;
 var fov = 40;
 
 var THETA=degToRad(50), PHI=degToRad(30);
@@ -462,54 +447,17 @@ var drag;
 var mo_matrix, mo_matrix1;
 
 
-/*========== Defining and storing the geometry ==========*/
-
-
-//usa libreria webgl-utils.js
+/*========== Defining the WebGL programs ==========*/
 initPrograms();
 
 
-
-
 /*================= Mouse events ======================*/
-<!-- var mouseDown=function(e) { -->
-    <!-- drag=true; -->
-    <!-- old_x=e.pageX, old_y=e.pageY; -->
-    <!-- e.preventDefault(); -->
-    <!-- return false; -->
-<!-- }; -->
-
-<!-- var mouseUp=function(e){ -->
-   <!-- drag=false; -->
-<!-- }; -->
-
-<!-- var mouseMove=function(e) { -->
-<!-- if (!drag) return false; -->
-<!-- dX=-(e.pageX-old_x)*2*Math.PI/canvas.width; -->
-<!-- dY=-(e.pageY-old_y)*2*Math.PI/canvas.height; -->
-<!-- //console.log('stampa',dX,dY); -->
-<!-- THETA+=dX; -->
-<!-- PHI+=dY; -->
-<!-- old_x=e.pageX, old_y=e.pageY; -->
-<!-- e.preventDefault(); -->
-<!-- render(); -->
-<!-- }; -->
-
-
 <!-- document.getElementById("Button1").onclick = function(){D *= 1.1}; -->
 <!-- document.getElementById("Button2").onclick = function(){D *= 0.9}; -->
 <!-- document.getElementById("Button3").onclick = function(){zmin  *= 1.1; zmax *= 1.1}; -->
 <!-- document.getElementById("Button4").onclick = function(){zmin *= 0.9; zmax *= 0.9}; -->
 <!-- document.getElementById("Button5").onclick = function(){fov  *= 1.1; fov *= 1.1}; -->
 <!-- document.getElementById("Button6").onclick = function(){fov *= 0.9; fov *= 0.9}; -->
-
-<!-- canvas.onmousedown=mouseDown; -->
-<!-- canvas.onmouseup=mouseUp; -->
-<!-- canvas.mouseout=mouseUp; -->
-<!-- canvas.onmousemove=mouseMove; -->
-
-
-
 
 
 function degToRad(d) {
@@ -763,16 +711,16 @@ var proj_matrix, view_matrix, lightMmatrix;
 
 var render=function() {
 
+	// ridimensiono, se serve, la canvas
 	webglUtils.resizeCanvasToDisplaySize(canvas);
+	// setto quindi la viewport alla dimensione della canvas e aggiorno l'aspect
 	gl.viewport(0.0, 0.0, canvas.width, canvas.height);
 	aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 	
 	//set projection matrix
-	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax);
+	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax); //Posso calcolarla anche una sola volta fuori dal ciclo di render ???
 	//set view matrix
-	moveCamera();
-
-				  
+	moveCamera();				  
 	view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
 
 	gl.enable(gl.DEPTH_TEST);
@@ -781,13 +729,6 @@ var render=function() {
 	<!-- gl.clearColor(1.0, 1.0, 1.0, 1);	 -->
 	<!-- gl.clearColor(0.043, 0.074, 0.376, 1);	 -->
 	gl.clearColor(0.8235, 0.9137, 0.9764, 1);	//sky color
-	/*to manage text on canvas and webgl */
-	
-	// Clear the 2D canvas
-	//to manage text on canvas and webgl
-	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-	
-	
 	gl.clearDepth(1.0);	//Inizializzo il Depth Buffer
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);		//Cancello sia il frame buffer che i depth buffer
 
@@ -829,6 +770,9 @@ var render=function() {
 		}
 	}
 
+	/*to manage text on canvas and webgl */
+	// Clear the 2D canvas
+	  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	//to manage text on canvas and webgl
 	  ctx.font = '18pt Calibri';
 	  ctx.fillStyle = 'green';
@@ -854,15 +798,19 @@ function update(time){
     if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early		
 		lightPos = initial_LightPos;
 		if(!modalitaGara){
-			lightMmatrix = m4.yRotation(time*0.0008, lightMmatrix);
-			lightPos = m4.transformPoint(lightMmatrix, lightPos);
+			//lightMmatrix = m4.yRotation(time*0.0008, lightMmatrix);
+			//lightPos = m4.transformPoint(lightMmatrix, lightPos);
 		} else{	CarreraDoStep(); }
         window.requestAnimationFrame(update);
         return; // return as there is nothing to do
     }
     lastFrameTime = time; // remember the time of the rendered frame
     // render the frame
-    render();
+	if(true){ //Metterci la Shadow Option		
+		renderWithShadow();
+	}else{
+		render();
+	}
     window.requestAnimationFrame(update); // get next frame
 }
 

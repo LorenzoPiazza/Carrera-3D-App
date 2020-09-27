@@ -310,8 +310,7 @@ function drawRightWheelTexture(item){
 
 
 
-/****************DRAW WITH LIGHT**************************/
-
+/**************************DRAW WITH TEXTURE AND LIGHT**************************/
 
 function drawLightTextureMesh(item){
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
@@ -350,7 +349,7 @@ function drawLightTextureMesh(item){
 	} else{
 		switch (item.meshName){
 			case "soleMesh":
-				mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				//	mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
 				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 				break;
 			default:
@@ -402,4 +401,164 @@ function drawLightTextureMesh(item){
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 }
 
+
+/****** DRAW ON THE SHADOW FRAME BUFFER *******/		//(E' una standard draw, senza colori, tanto mi interessano solo i depth values) 
+function drawOnShadowBufferMesh(item){
+	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
+	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
+		
+	if(modalitaGara){
+		switch (item.meshName){
+			case "carreraMesh":
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //Setto la posizione iniziale della Mesh
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//Traslazione della carrera
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//Orientamento in base allo sterzo
+				break;	
+			case "ruotaADMesh":
+			case "ruotaASMesh":
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
+				mo_matrix = m4.yRotate(mo_matrix,degToRad(sterzo));			//1. Rotazione attorno all'asse Y dovuta dallo sterzo
+				mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
+				break;
+			case "ruotaPDMesh":
+			case "ruotaPSMesh":
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
+				mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
+				break;
+			case "fotocameraMesh":
+				mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos, [px,py,pz], [0,1,0]));	//Sfrutto la matrice lookAt come matrice di movimento per far seguire alla fotocamera la macchina
+				//Scommentare la prossima riga e sostituire alla riga sopra per far anche muovere la fotocameraMesh oltre ad orientarla.
+				//mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos[0]+px, fotocameraMeshPos[1]+py, fotocameraMeshPos[2]+pz], [px,py,pz], [0,1,0]));
+				break;
+			default:
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+		}		
+	} else{
+		switch (item.meshName){
+			case "soleMesh":
+				//	mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+				break;
+			default:
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+		}
+	}
+	
+	//SETUP degli ATTRIBUTE
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
+	gl.enableVertexAttribArray(standardProgramLocs._position);
+	gl.vertexAttribPointer(standardProgramLocs._position, 3, gl.FLOAT, false,0,0);
+	
+	//SETUP DEGLI UNIFORM (qui setto solo quelli che cambiano di mesh in mesh. Quelli che restano costanti per tutto l'uso del programma li setto una volta sola nella funzione render)
+	gl.uniformMatrix4fv(standardProgramLocs._Mmatrix, false, mo_matrix);
+	
+	//DISEGNO
+	gl.drawArrays(gl.TRIANGLES, 0, 3*item.meshData.nface);
+	// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, item.indexBuffer);
+	// gl.drawElements(gl.TRIANGLES, item.indices.length, gl.UNSIGNED_SHORT, 0);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, null); 
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+}
+
+
+/**************************DRAW WITH TEXTURE, LIGHT AND SHADOWS**************************/
+var toLightPovMatrix;
+function drawLightTextureShadowMesh(item){
+	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
+	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
+		
+	if(modalitaGara){
+		switch (item.meshName){
+			case "carreraMesh":
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //Setto la posizione iniziale della Mesh
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//Traslazione della carrera
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//Orientamento in base allo sterzo
+				break;	
+			case "ruotaADMesh":
+			case "ruotaASMesh":
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
+				mo_matrix = m4.yRotate(mo_matrix,degToRad(sterzo));			//1. Rotazione attorno all'asse Y dovuta dallo sterzo
+				mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
+				break;
+			case "ruotaPDMesh":
+			case "ruotaPSMesh":
+				mo_matrix = m4.translate(mo_matrix, px, py, pz);			//4. Traslazione delle ruote data dal movimento dell'auto
+				mo_matrix = m4.yRotate(mo_matrix, degToRad(facing));		//3. Rotazione attorno all'asse Y dovuta al facing, per seguire il corpo della macchina	
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix); //2. Traslazione delle ruote (che sono definite con centro nell'origine) nella loro posizione auto corretta.
+				mo_matrix = m4.xRotate(mo_matrix, degToRad(mozzoP));		//0. Rotazione del mozzo delle ruote attorno all'asse X
+				break;
+			case "fotocameraMesh":
+				mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos, [px,py,pz], [0,1,0]));	//Sfrutto la matrice lookAt come matrice di movimento per far seguire alla fotocamera la macchina
+				//Scommentare la prossima riga e sostituire alla riga sopra per far anche muovere la fotocameraMesh oltre ad orientarla.
+				//mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos[0]+px, fotocameraMeshPos[1]+py, fotocameraMeshPos[2]+pz], [px,py,pz], [0,1,0]));
+				break;
+			default:
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+		}		
+	} else{
+		switch (item.meshName){
+			case "soleMesh":
+				//	mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+				break;
+			default:
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+		}
+	}
+	
+	//SETUP degli ATTRIBUTE
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.vertexBuffer);
+	gl.enableVertexAttribArray(shadowProgramLocs._position);
+	gl.vertexAttribPointer(shadowProgramLocs._position, 3, gl.FLOAT, false,0,0);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, item.normalBuffer);
+	gl.enableVertexAttribArray(shadowProgramLocs._normal);
+	gl.vertexAttribPointer(shadowProgramLocs._normal, 3, gl.FLOAT, false,0,0);
+	
+	if(item.meshData.numtext > 0){
+		gl.bindBuffer(gl.ARRAY_BUFFER, item.texBuffer);
+		gl.enableVertexAttribArray(shadowProgramLocs._texcoord);		
+		gl.vertexAttribPointer(shadowProgramLocs._texcoord, 2, gl.FLOAT, false,0,0);
+
+		//ATTIVO LE TEXTURE
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, item.texture);
+		// Tell the shader to use texture unit 0 for the sampler2D "u_texture"
+		gl.uniform1i(shadowProgramLocs._texture, 1);
+		
+		gl.uniform1i(shadowProgramLocs._mode, 1);
+	} else{
+		gl.uniform1i(shadowProgramLocs._mode, 0);
+	}	
+	//SETUP DEGLI UNIFORM (qui setto solo quelli che cambiano di mesh in mesh. Quelli che restano costanti per tutto l'uso del programma li setto una volta sola nella funzione render)
+
+	gl.uniformMatrix4fv(shadowProgramLocs._Mmatrix, false, mo_matrix);
+	gl.uniformMatrix4fv(shadowProgramLocs._normalMat, false, m4.transpose(m4.inverse(mo_matrix)));	
+	
+	gl.uniform3fv(shadowProgramLocs._ka,  item.material.ka);
+	gl.uniform3fv(shadowProgramLocs._kd,  item.material.kd);
+	gl.uniform3fv(shadowProgramLocs._ks,  item.material.ks);
+	gl.uniform1f(shadowProgramLocs._shininessVal, item.material.shininessVal);
+	
+	toLightPovMatrix = m4.identity();
+	m4.multiply(lightViewMatrix, mo_matrix, toLightPovMatrix);
+	m4.multiply(proj_matrix, toLightPovMatrix, toLightPovMatrix);
+	gl.uniformMatrix4fv(shadowProgramLocs._toLightPovMatrix, false, toLightPovMatrix);
+
+	
+	//DISEGNO
+	gl.drawArrays(gl.TRIANGLES, 0, 3*item.meshData.nface);
+	// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, item.indexBuffer);
+	// gl.drawElements(gl.TRIANGLES, item.indices.length, gl.UNSIGNED_SHORT, 0);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, null); 
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+}
 

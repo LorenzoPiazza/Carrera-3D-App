@@ -775,7 +775,7 @@
 
   // Add `push` to a typed array. It just keeps a 'cursor'
   // and allows use to `push` values into the array so we
-  // don't have to manually compute offsets
+  // don't have to manually compute offsets.
   function augmentTypedArray(typedArray, numComponents) {
     let cursor = 0;
     typedArray.push = function() {

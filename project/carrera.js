@@ -188,7 +188,7 @@ function CarreraDoStep(){
   // px+=vx;
   // py+=vy;
   // pz+=vz;
-	if(px+Math.abs(2*Math.cos(facing)) > 3 || px-Math.abs(2*Math.cos(facing)) < -3)
+	if(px+Math.abs(2*Math.cos(facing)) > 3 || px-Math.abs(2*Math.cos(facing)) < -3	)
 		px-=vx;
 	else
 		px+=vx;
