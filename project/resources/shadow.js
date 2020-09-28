@@ -86,9 +86,9 @@ function renderOnShadowBuffer(){
 		
 	// setto la projection matrix
 	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax);
+	aspect = shadow_frame_buffer.width/shadow_frame_buffer.height;
 	// setto la view matrix con posizione camera nella lightPos
-	lightViewMatrix = m4.inverse(m4.lookAt(lightPos, target, up));
-	
+	lightViewMatrix = m4.inverse(m4.lookAt(lightPos, [px-2,py+2,pz-5], up));
 	
 	gl.uniformMatrix4fv(standardProgramLocs._Pmatrix, false, proj_matrix);
 	gl.uniformMatrix4fv(standardProgramLocs._Vmatrix, false, lightViewMatrix);
@@ -103,14 +103,13 @@ function renderOnShadowBuffer(){
 }
 
 function renderWithShadow(){		
-	moveCamera();
-	// light_pos = camera_pos;
 	/*** 1.Renderizzo sullo shadow frame buffer ***/
+	// lightPos = [camera_pos[0], camera_pos[1]-3, camera_pos[2]];
 	renderOnShadowBuffer();
 	
 	/*** 2.Renderizzo la scena vera ***/
 	
-	// ridimensiono, se serve, la canvas
+	// ridimensiono la canvas, se serve, per adattarla alla dimensione della finestra browser.
 	webglUtils.resizeCanvasToDisplaySize(canvas);
 	// setto quindi la viewport alla dimensione della canvas e aggiorno l'aspect
 	gl.viewport(0.0, 0.0, canvas.width, canvas.height);
@@ -119,6 +118,7 @@ function renderWithShadow(){
 	// setto la projection matrix
 	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax);
 	// setto la view matrix con posizione camera nella lightPos
+	moveCamera();
 	view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
 
 	gl.enable(gl.DEPTH_TEST);
@@ -126,7 +126,7 @@ function renderWithShadow(){
 	//gl.depthFunc(gl.LEQUAL);
 	gl.clearColor(0.8235, 0.9137, 0.9764, 1);	//sky color
 	gl.clearDepth(1.0);	//Inizializzo il Depth Buffer
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);		//Cancello sia il frame buffer che i depth buffer
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);		//Pulisco sia il color buffer che il depth buffer
 
 	
 	gl.useProgram(programList.shadowProgram);
@@ -154,8 +154,9 @@ function renderWithShadow(){
 	// Clear the 2D canvas
 	  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	//to manage text on canvas and webgl
-	  ctx.font = '18pt Calibri';
-	  ctx.fillStyle = 'green';
-	  ctx.fillText('Welcome to carrera Project', 90, 50);
+	  ctx.font = '20pt Comic Sans MS';
+	  ctx.fillStyle = '#BB4430';
+	  ctx.textAlign = "center";
+	  ctx.fillText('CARRERA 3D WEB APP', ctx.canvas.width/2, ctx.canvas.height/4);
 	
 }

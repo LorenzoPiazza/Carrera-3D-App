@@ -16,8 +16,8 @@ var forward_versor, right_versor, ycam_axis;
 
 function initCamera(){
  /*Inizializzo le posizioni significative*/
- camera_pos = [9, 4, 9];
- target = [0, 2, 0];
+ camera_pos = [4, 3, 8];
+ target = [-2, 2, -8];
  up = [0, 1, 0];
  /*E calcolo gli assi della camera*/
  forward_versor = m4.normalize(m4.subtractVectors(target, camera_pos, forward_versor)); 	//Ze

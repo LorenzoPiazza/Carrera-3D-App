@@ -71,7 +71,7 @@ function Mesh(meshName, meshData, initial_mo_matrix, material, texture) {
 	//gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 	//gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);	
 	
-	if(meshData.numtext > 0){	
+	if(meshData.numtext > 0 && texture != null){	
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.texBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textcoord), gl.STATIC_DRAW);
 	}
@@ -349,7 +349,7 @@ function drawLightTextureMesh(item){
 	} else{
 		switch (item.meshName){
 			case "soleMesh":
-				//	mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				//mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
 				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 				break;
 			default:
@@ -366,7 +366,7 @@ function drawLightTextureMesh(item){
 	gl.enableVertexAttribArray(lightTextureProgramLocs._normal);
 	gl.vertexAttribPointer(lightTextureProgramLocs._normal, 3, gl.FLOAT, false,0,0);
 	
-	if(item.meshData.numtext > 0){
+	if(item.meshData.numtext > 0 && item.texture != null){
 		gl.bindBuffer(gl.ARRAY_BUFFER, item.texBuffer);
 		gl.enableVertexAttribArray(lightTextureProgramLocs._texcoord);		
 		gl.vertexAttribPointer(lightTextureProgramLocs._texcoord, 2, gl.FLOAT, false,0,0);
@@ -404,6 +404,8 @@ function drawLightTextureMesh(item){
 
 /****** DRAW ON THE SHADOW FRAME BUFFER *******/		//(E' una standard draw, senza colori, tanto mi interessano solo i depth values) 
 function drawOnShadowBufferMesh(item){
+	if(item.meshName == "soleMesh")
+		return;
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
 	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
 		
@@ -438,14 +440,7 @@ function drawOnShadowBufferMesh(item){
 				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 		}		
 	} else{
-		switch (item.meshName){
-			case "soleMesh":
-				//	mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
-				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
-				break;
-			default:
-				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
-		}
+			mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 	}
 	
 	//SETUP degli ATTRIBUTE
@@ -505,7 +500,7 @@ function drawLightTextureShadowMesh(item){
 	} else{
 		switch (item.meshName){
 			case "soleMesh":
-				//	mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				//mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
 				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 				break;
 			default:
@@ -522,7 +517,7 @@ function drawLightTextureShadowMesh(item){
 	gl.enableVertexAttribArray(shadowProgramLocs._normal);
 	gl.vertexAttribPointer(shadowProgramLocs._normal, 3, gl.FLOAT, false,0,0);
 	
-	if(item.meshData.numtext > 0){
+	if(item.meshData.numtext > 0 && item.texture != null){
 		gl.bindBuffer(gl.ARRAY_BUFFER, item.texBuffer);
 		gl.enableVertexAttribArray(shadowProgramLocs._texcoord);		
 		gl.vertexAttribPointer(shadowProgramLocs._texcoord, 2, gl.FLOAT, false,0,0);

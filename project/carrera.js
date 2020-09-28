@@ -195,7 +195,6 @@ function CarreraDoStep(){
 	
 	py+=vy;
 	pz+=vz;
-	console.log(px);
   // console.log("vz: " +vz);
   // console.log("vzm: " +vzm);
 }
