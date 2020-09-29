@@ -58,3 +58,8 @@ In modalità gara poi, è possibile simulare il cosiddetto “lancio della carre
 
     Infine, sono presenti la libreria *j-query* per l’utilizzo del modulo Ajax (vedi sezione Mesh) e un file .css.
 
+# Mesh
+
+La scena dell'applicazione è composta da diverse Mesh che vengono importate da altrettanti file formato Wavefront OBJ. Le più complicate (la casa, la fotocamera, il cartello autostradale, la macchina) sono state reperite online mentre quelle più semplici come la strada o il sole le ho create su Blender e poi le ho esportate. 
+Per importare le mesh nella scena utilizzo la funzione `loadMeshObj` presente nel file obj-mesh.  
+Essa sfrutta il modulo **Ajax** della libreria JQuery per accedere in modo asincrono al file .obj desiderato
