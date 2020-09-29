@@ -69,7 +69,7 @@ Per importare le mesh nella scena utilizzo la funzione `loadMeshObj` presente ne
 Essa sfrutta il modulo **JQuery Ajax** per accedere in modo asincrono alla risorsa .obj desiderata. Una volta ottenuta, esegue i seguenti 3 passi:
 1. Lettura e parsing del file obj. **[1]**
 2. Creazione di un oggetto Mesh con i dati letti. **[2]**
-3. Inserimento dell’oggetto Mesh in un array che conterrà tutte le mesh di scena. **[3]**    
+3. Inserimento dell’oggetto Mesh in un array che conterrà tutte le mesh di scena. **[3]**      
   **[1]** Per rendere possibile una lettura adeguata ho modificato la libreria `glm_light.js` estendendo la funzione *readOBJ* perché oltre a leggere e salvare i dati e gli indici relativi alle posizioni dei vertici si salvasse anche i dati e gli indici relativi alle coordinate uv texture e alle normali dei vertici.    
   **[2]** Per rendere più pulito e meno ripetitivo il codice ho deciso di definire l'entità Mesh come oggetto e di raggruppare in un costruttore le operazioni comuni a tutti gli oggetti Mesh, come la creazione dei buffer WebGL (`createBuffer`), il bind e il caricamento in essi dei dati (`bufferData`). Questa scelta si è rivelata vantaggiosa ai fini della scrittura del codice in quanto lavorare con l'astrazione dell'oggetto, facilmente distinguibile tramite un campo univoco *meshName*, ha reso facile settare le sue proprietà in fase di caricamento, come la matrice di posizionamento iniziale, la texture, il materiale, ma allo stesso tempo di accedervi agilmente quando necessario (ad esempio in fase di disegno).  
   Ed infatti è stato possibile generalizzare anche la fase di disegno definendo un'unica funzione `drawMesh` (nelle sue varianti `drawLightTextureMesh`, `drawLightTextureShadowMesh` in base al tipo di resa desiderata) da invocare passandole come parametro la mesh da disegnare.    
@@ -90,3 +90,7 @@ La geometria iniziale delle ruote e anche della carrozzeria è stata definita co
 
 ![carreraNoRuote](/docs/img/carreraNoRuote.png) ![ruota](/docs/img/ruota.png)
 
+Blender è stato poi molto utile per applicare le texture alle mie mesh definendo il mapping UV ed esportando le coordinate texture nel file .obj  
+Parlerò di Texture nella prossima sezione.
+
+### Texture
