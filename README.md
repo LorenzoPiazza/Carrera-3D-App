@@ -39,8 +39,6 @@ In modalità gara poi, è possibile simulare il cosiddetto **lancio della carrer
 È presente anche una funzione, *initPrograms*, che a partire dai sorgenti degli shaders crea i realativi programmi WebGL e si salva i puntatori agli Attribute e Uniform di quel programma. *initPrograms* verrà invocata nel file index.html.
 Sia i programmi che i puntatori sono salvati in oggetti globali chiamati rispettivamente `programList` e `_nomeProgramma_Locs`.
 Così, in ogni punto del codice di progetto ho potuto accedere facilmente ad un programma o ad un puntatore ad una sua location.
-> Esempio per usare un programma:
-> gl.useProgram(programList.*nomeProgramma*);
 
   - `/data`: è una cartella che contiene i file .obj delle mesh presenti in scena e le immagini texture.
 
@@ -94,3 +92,36 @@ Blender è stato molto utile anche per applicare le texture alle mie mesh define
 Parlerò di Texture nella prossima sezione.
 
 ### Texture
+
+
+# Interazione Utente
+
+### Movimento della Camera
+
+
+### Movimento della carrera
+
+
+### Portabilità su dispositivi touch screen
+
+
+# Illuminazione
+
+# Particolarità
+
+### Resa con Ombre
+
+### Fotocamera che segue la carrera
+Se pensiamo alla camera da cui guardiamo la scena come se fosse un qualsiasi oggetto, anch’essa avrà una posizione ben definita nella scena, come tutti gli altri oggetti.  
+Allora possiamo dire che anche la camera avrà una matrice di trasformazione che ne definisce posizione e orientamento rispetto all'origine dello spazio mondo della scena.
+La **lookAt matrix** è proprio questa matrice di trasformazione.  
+Non a caso la lookAt matrix viene usata per portare il **SdR mondo**, con origine in un punto detto `target`, a coincidere (sia come posizione che come orientamento degli assi) con il **SdR osservatore**, avente invece origine in un punto `camera_pos` e asse `Ze` che punta verso `target`.  
+Cosa succede quindi se ***sfruttiamo la matrice lookAt come matrice di movimento di una mesh?*** Essa definirà la sua posizione e il suo orientamento nello spazio mondo a seconda dei parametri camera_pos, target (e view up vector) specificati.   
+Definendo come `target` un punto in movimento, al muoversi del target la matrice lookAt ricalcolerà l’orientamento della mesh in modo che l’asse Ze (forward versor della mesh) punti sempre verso l’oggetto.  
+Ho applicato questa tecnica per animare la mesh *fotocameraMesh* in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
+La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione.
+
+![FotocameraGif](/docs/img/fotocamera.gif)
+
+
+### Resize della canvas
