@@ -17,7 +17,7 @@ Una volta avviata, l’applicazione si presenta composta da quattro elementi pri
 - *touchCanvas1 e touchCanvas2*: sono due oggetti canvas con contesto 2D su cui viene disegnata l’immagine di un gamepad e che possono essere usati nei dispositivi touch, per sopperire alla mancanza di mouse e tastiera.
 - *pannello UI*: è un oggetto div che funge da menù dell’applicazione.
 
-[introImage](/docs/img/intro.png)
+![introImage](/docs/img/intro.png)
 
 L’applicazione presenta due differenti modalità d’uso, che possono essere scelte mediante il pannello UI in alto a sinistra.
 - **Modalità scena:** In questa modalità l’utente è libero di navigare la scena per osservarne la composizione e i dettagli.
@@ -40,19 +40,21 @@ In modalità gara poi, è possibile simulare il cosiddetto “lancio della carre
 
   - `/data`: è una cartella che contiene i file .obj delle mesh presenti in scena e le immagini texture.
 
-  - `/resources`: è una cartella che contiene i file di script .js. In particolare:
+  - `/resources`: è una cartella che contiene i file di script .js.
+  
+    Alcuni sono le librerie viste all'interno del corso:
     - *glm_light_plus.js* (estensione della glm_light.js)
     - *subdiv.js*
     - *m4.js*
     -	*webgl-lessons-ui.js*
-    -	*webgl-utils.js* 
-Sono le librerie viste all’interno del corso. Poi vi sono:
+    -	*webgl-utils.js*
+    
+    Poi vi sono altri file di script che ho realizzato. All’inizio di ciascuno di questi file ho scritto alcune righe di commento a cui rimando per maggiori dettagli sulle loro funzionalità:
     -	*carrera.js:* si occupa della fisica della carrera.
     -	*camera-utils.js:* gestione del movimento della camera.
     -	*obj-mesh.js:* caricamento e disegno di mesh.
     -	*interaction.js:* gestione dell’interazione utente.
-    -	*shadow.js:* gestione delle ombre e funzione di render con ombre.  
-Sono i file di script che ho realizzato. All’inizio di ciascuno di questi file ho scritto alcune righe di commento a cui rimando per maggiori dettagli sulle loro funzionalità.
+    -	*shadow.js:* gestione delle ombre e funzione di render con ombre.
 
-Infine, sono presenti la libreria *j-query* per l’utilizzo del modulo Ajax (vedi sezione Mesh) e un file .css.
+    Infine, sono presenti la libreria *j-query* per l’utilizzo del modulo Ajax (vedi sezione Mesh) e un file .css.
 
