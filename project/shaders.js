@@ -1,5 +1,9 @@
-/* In questo file salvo come variabili testuali i vari Vertex Shaders e Fragment Shaders che utilizzo nel progetto.
- * 
+// shaders.js
+// @Author: Lorenzo Piazza
+
+/*
+ * In questo file salvo come variabili testuali i vari Vertex Shaders e Fragment Shaders che utilizzo nel progetto.
+ * E' presente anche una funzione, initPrograms(), che a partire dai sorgenti degli shaders crea i programmi si salva i puntatori agli Attribute e Uniform di quel programma.
  */
  
  
@@ -269,7 +273,7 @@
 
  var standardProgramLocs, textureProgramLocs, lightTextureProgramLocs, shadowProgramLocs;
 
-/* In questa funzione sfrutto la libreria webgl-utils.js per automatizzare il processo di creazione dei programmi a partire dai sorgenti degli shaders che fornisco come variabili testuali.
+/* In questa funzione sfrutto la libreria webgl-utils.js per automatizzare il processo di creazione dei programmi a partire dai sorgenti degli shaders che fornisco come variabili testuali, e il salvataggio dei puntatori agli attribute e Uniform del programma stesso.
  * La libreria, dietro alle quinte, svolge i passi di:
  * -creazione degli shaders, associazione del codice sorgente, compilazione.
  * -creazione del programma, collegarlo agli shaders appena creati e linkare il programma.

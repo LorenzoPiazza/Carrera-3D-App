@@ -2,7 +2,7 @@
 
 /* 
  * In questo file ho raggruppato le funzioni che predispongono il rendering delle ombre nella scena.
- * Ossia tutte le operazioni preliminari e necessarie a poter poi invocare la renderWithShadows() definita nel file index.html
+ * E' presente inoltre la funzione renderWithShadow, invocata nell'index.html, per la resa con ombre.
  */
 
 /** ---------------------------------------------------------------------
@@ -63,6 +63,7 @@ function _createFrameBufferObject(gl, width, height) {
   return frame_buffer;
 }
 
+/*Funzione che controlla che l'estensione 'WEBGL_depth_texture' sia disponibile*/
 function isShadowAvailable(){
 	var depth_texture_extension = gl.getExtension('WEBGL_depth_texture');
 	if (!depth_texture_extension) {
@@ -79,7 +80,8 @@ function isShadowAvailable(){
    * z-buffer into a texture map (The shadow Buffer).
    */
 function renderOnShadowBuffer(){
-	gl.useProgram(programList.standardProgram);
+	gl.useProgram(programList.standardProgram);		//Renderizzo usando lo standard program
+	
 	gl.bindFramebuffer(gl.FRAMEBUFFER,  shadow_frame_buffer);					// Setto lo shadow_frame_buffer come frame buffer su cui fare il render
 	gl.viewport(0, 0, shadow_frame_buffer.width, shadow_frame_buffer.height);	// Set the size of the viewport to be the same size as the frame buffer
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);						// Clear the entire canvas window background with the clear color
@@ -103,12 +105,11 @@ function renderOnShadowBuffer(){
 }
 
 function renderWithShadow(){		
-	/*** 1.Renderizzo sullo shadow frame buffer ***/
+	/****** 1.Renderizzo sullo shadow frame buffer ******/
 	// lightPos = [camera_pos[0], camera_pos[1]-3, camera_pos[2]];
 	renderOnShadowBuffer();
 	
-	/*** 2.Renderizzo la scena vera ***/
-	
+	/****** 2.Renderizzo la scena vera ******/	
 	// ridimensiono la canvas, se serve, per adattarla alla dimensione della finestra browser.
 	webglUtils.resizeCanvasToDisplaySize(canvas);
 	// setto quindi la viewport alla dimensione della canvas e aggiorno l'aspect
@@ -129,11 +130,11 @@ function renderWithShadow(){
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);		//Pulisco sia il color buffer che il depth buffer
 
 	
-	gl.useProgram(programList.shadowProgram);
+	gl.useProgram(programList.shadowProgram);					//Renderizzo usando lo shadow program
 	//SETUP DEGLI UNIFORM costanti nell'uso del programma. Gli uniform infatti sono a livello di programma quindi se non cambiano posso settarli una volta sola.
 	gl.uniformMatrix4fv(shadowProgramLocs._Pmatrix, false, proj_matrix);
 	gl.uniformMatrix4fv(shadowProgramLocs._Vmatrix, false, view_matrix);
-	//Uniform relativi alla luce: Posso farli anche una sola volta fuori dalla drawLightTextureMesh?
+	//Uniform relativi alla luce: Posso farli anche una sola volta fuori dalla drawLightTextureMesh.
 	gl.uniform3fv(shadowProgramLocs._lightPos, lightPos);
 	gl.uniform1f(shadowProgramLocs._ambientLight, ambientLight);
 	gl.uniform1f(shadowProgramLocs._diffuseLight, diffuseLight);
@@ -150,10 +151,9 @@ function renderWithShadow(){
 		}
 	}
 
-	/*to manage text on canvas and webgl */
-	// Clear the 2D canvas
+	//Clear the 2D "text canvas"
 	  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-	//to manage text on canvas and webgl
+	//and redraw
 	  ctx.font = '20pt Comic Sans MS';
 	  ctx.fillStyle = '#BB4430';
 	  ctx.textAlign = "center";
