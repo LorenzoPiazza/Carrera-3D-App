@@ -63,15 +63,30 @@ Così, in ogni punto del codice di progetto ho potuto accedere facilmente ad un 
 
 # Mesh
 
+### Importazione e disegno
 La scena dell'applicazione è composta da diverse Mesh che vengono importate da altrettanti file in formato **Wavefront OBJ**. Le più complicate (la casa, la fotocamera, il cartello autostradale, la macchina) sono state reperite online mentre quelle più semplici come la strada o il sole le ho create su Blender e poi le ho esportate.   
 Per importare le mesh nella scena utilizzo la funzione `loadMeshObj` presente nel file obj-mesh.  
 Essa sfrutta il modulo **JQuery Ajax** per accedere in modo asincrono alla risorsa .obj desiderata. Una volta ottenuta, esegue i seguenti 3 passi:
 1. Lettura e parsing del file obj. **[1]**
 2. Creazione di un oggetto Mesh con i dati letti. **[2]**
-3. Inserimento dell’oggetto Mesh in un array che conterrà tutte le mesh di scena. **[3]**
-  **[1]** Per rendere possibile una lettura adeguata ho modificato la libreria `glm_light.js` estendendo la funzione *readOBJ* perché oltre a leggere e salvare i dati e gli indici relativi alle posizioni dei vertici si salvasse anche i dati e gli indici relativi alle coordinate uv texture e alle normali dei vertici.
+3. Inserimento dell’oggetto Mesh in un array che conterrà tutte le mesh di scena. **[3]**    
+  **[1]** Per rendere possibile una lettura adeguata ho modificato la libreria `glm_light.js` estendendo la funzione *readOBJ* perché oltre a leggere e salvare i dati e gli indici relativi alle posizioni dei vertici si salvasse anche i dati e gli indici relativi alle coordinate uv texture e alle normali dei vertici.    
   **[2]** Per rendere più pulito e meno ripetitivo il codice ho deciso di definire l'entità Mesh come oggetto e di raggruppare in un costruttore le operazioni comuni a tutti gli oggetti Mesh, come la creazione dei buffer WebGL (`createBuffer`), il bind e il caricamento in essi dei dati (`bufferData`). Questa scelta si è rivelata vantaggiosa ai fini della scrittura del codice in quanto lavorare con l'astrazione dell'oggetto, facilmente distinguibile tramite un campo univoco *meshName*, ha reso facile settare le sue proprietà in fase di caricamento, come la matrice di posizionamento iniziale, la texture, il materiale, ma allo stesso tempo di accedervi agilmente quando necessario (ad esempio in fase di disegno).  
-  Ed infatti è stato possibile generalizzare anche la fase di disegno definendo un'unica funzione `drawMesh` (nelle sue varianti `drawLightTextureMesh`, `drawLightTextureShadowMesh` in base al tipo di resa desiderata) da invocare passandole come parametro la mesh da disegnare.
+  Ed infatti è stato possibile generalizzare anche la fase di disegno definendo un'unica funzione `drawMesh` (nelle sue varianti `drawLightTextureMesh`, `drawLightTextureShadowMesh` in base al tipo di resa desiderata) da invocare passandole come parametro la mesh da disegnare.    
   **[3]** Una volta completati gli import mi ritrovo quindi con un array di oggetti Mesh. Questo array è utile nella funzione di render dove, per ogni mesh in esso contenuta, invoco l'opportuna funzione `drawMesh` o una sua variante.  
 Le funzioni relative all’importazione e disegno della mesh le ho raggruppate nel file `obj-mesh.js`, eccezion fatta per la funzione readOBJ che si trova, come già puntualizzato precedente, nel file `glm_light_plus.js`.
+
+### Utilizzo di Blender
+Quasi tutte le mesh che ho recuperato online si presentavano in posizioni, dimensioni e orientamenti diversi da quelli che desideravo.  
+Per ridurre le operazioni di trasformazione nel codice della mia applicazione ho importato le mesh originali sul software Blender e ne ho definito la geometria iniziale (centrandole nell’origine degli assi, orientandole nel verso desiderato con delle rotazioni, rimpicciolendole…).
+Per alcune mesh ho sfruttato Blender anche in fase di esportazione del nuovo file .obj, in modo da triangolare le facce che in origine si presentavano quadrate. Questo era necessario in quanto WebGL (e più in generale molti algoritmi di CG) lavorano con mesh a faccette piane triangolari.    
+
+Blender si è poi rivelato fondamentale nella gestione della mesh Carrera. In origine questa mesh si presentava definita come un unico oggetto fatto da carrozzeria e ruote. Ho usato Blender per suddividerla nelle seguenti 3 mesh:
+- carrozzeria
+- ruota Destra
+- ruota Sinistra
+In questo modo mi è stato possibile definire movimenti diversi a seconda dell’esigenza della singola mesh. Le ruote, ad esempio, hanno necessità di ruotare intorno all’asse X, la carrozzeria invece no.  
+La geometria iniziale delle ruote e anche della carrozzeria è stata definita con centro nell’origine degli assi in modo da poter apportare rotazioni opportune. Questo mi ha permesso di **alleggerire le operazioni di render** poichè avrei comunque dovuto traslarle nel centro degli assi e lo avrei fatto a livello di codice.
+
+![carreraNoRuote](/docs/img/carreraNoRuote.png) ![ruota](/docs/img/ruota.png)
 
