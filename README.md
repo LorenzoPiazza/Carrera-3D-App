@@ -76,12 +76,12 @@ Essa sfrutta il modulo **JQuery Ajax** per accedere in modo asincrono alla risor
   **[3]** Una volta completati gli import mi ritrovo quindi con un array di oggetti Mesh. Questo array è utile nella funzione di render dove, per ogni mesh in esso contenuta, invoco l'opportuna funzione `drawMesh` o una sua variante.  
 Le funzioni relative all’importazione e disegno della mesh le ho raggruppate nel file `obj-mesh.js`, eccezion fatta per la funzione readOBJ che si trova, come già puntualizzato precedente, nel file `glm_light_plus.js`.
 
-### Utilizzo di Blender
+### Utilizzo di Blender ![blenderLogo](/docs/img/blender-logo-vector.png)
 Quasi tutte le mesh che ho recuperato online si presentavano in posizioni, dimensioni e orientamenti diversi da quelli che desideravo.  
-Per ridurre le operazioni di trasformazione nel codice della mia applicazione ho importato le mesh originali sul software Blender e ne ho definito la geometria iniziale (centrandole nell’origine degli assi, orientandole nel verso desiderato con delle rotazioni, rimpicciolendole…).
-Per alcune mesh ho sfruttato Blender anche in fase di esportazione del nuovo file .obj, in modo da triangolare le facce che in origine si presentavano quadrate. Questo era necessario in quanto WebGL (e più in generale molti algoritmi di CG) lavorano con mesh a faccette piane triangolari.    
+Per ridurre le operazioni di trasformazione nel codice della mia applicazione ho importato le mesh originali sul software Blender e ne ho definito la **geometria iniziale** (centrandole nell’origine degli assi, orientandole nel verso desiderato con delle rotazioni, rimpicciolendole…).
+Per alcune mesh ho sfruttato Blender anche in fase di esportazione del nuovo file .obj, in modo da **triangolare le facce** che in origine si presentavano quadrate. Questo era necessario in quanto WebGL (e più in generale molti algoritmi di CG) lavorano con mesh a faccette piane triangolari.    
 
-Blender si è poi rivelato fondamentale nella gestione della mesh Carrera. In origine questa mesh si presentava definita come un unico oggetto fatto da carrozzeria e ruote. Ho usato Blender per suddividerla nelle seguenti 3 mesh:
+Blender si è poi rivelato fondamentale nella gestione della mesh Carrera. In origine questa mesh si presentava definita come un unico oggetto fatto da carrozzeria e ruote. Ho usato Blender per **suddividerla** nelle seguenti 3 mesh:
 - carrozzeria
 - ruota Destra
 - ruota Sinistra
@@ -90,7 +90,7 @@ La geometria iniziale delle ruote e anche della carrozzeria è stata definita co
 
 ![carreraNoRuote](/docs/img/carreraNoRuote.png) ![ruota](/docs/img/ruota.png)
 
-Blender è stato poi molto utile per applicare le texture alle mie mesh definendo il mapping UV ed esportando le coordinate texture nel file .obj  
+Blender è stato molto utile anche per applicare le texture alle mie mesh definendo il mapping UV ed esportando le coordinate texture nel file .obj.  
 Parlerò di Texture nella prossima sezione.
 
 ### Texture
