@@ -97,7 +97,19 @@ Blender è stato molto utile anche per applicare le texture alle mie mesh define
 Parlerò di Texture nella prossima sezione.
 
 ### Texture
+Per migliorare l'aspetto della scena ho texturato la maggior parte delle mesh presenti USANDO UN TECNICA DI TEXTURE IMAGE 2D ???
+Il procedimento che ho seguito è stato:
+1. In fase di init **caricamento delle immagini e creazione della texture:**  
+  per svincolarmi dal tempo di caricamento delle immagini e iniziare quanto prima il render della scena, all'inizio definisco una texture di default di colore Blu. Poi, nel momento in cui l'immagine voluta è stata caricata (`image.onload`) la sovrascrivo a quella di default.
+2. Sempre in fase di init, **load delle mesh passando la texture corrispondente.**
+3. In fase di disegno della mesh, controllo se per la mesh corrente è presente una texture:  
+  In caso affermativo, associo il giusto attribute al buffer con le coordinate texture, attivo una Texture Unit del programma corrente (
+`gl.activeTexture(gl.TEXTURE0)` ), vi associo la texture desiderata e infine associo lo uniform alla Texture Unit attivata.
 
+Dal momento che il colore di un oggetto in scena è condizionato sia dalla texture che dall'illuminazione ho realizzato un unico programma Shader chiamato *lightTextureProgram* e ho definito nel suo fragment shader uno Uniform `mode`.  
+Descriverò più ampiamente il programma *lightTextureProgram* nella sezione [Illuminazione](#Illuminazione). Per ora mi limito a dire che grazie a `mode` mi è stato possibile usare lo stesso programma sia per il render di oggetti texturati che non texturati, distinguendo il calcolo del colore dei primi, che sarà dato da luce + texture, dal calcolo del colore dei secondi, definito invece solo dalla luce.
+
+MIPMAP  ???
 
 # Interazione Utente
 
@@ -115,11 +127,11 @@ E' stato necessario introdurre una funzione realign() che permettesse di ricalco
 ### Portabilità su dispositivi touch screen
 In un’ottica di portabilità dell’applicazione e di compatibilità con dispositivi touchscreen le varie interazioni utente sono possibili sia tramite tastiera e mouse che tramite touch dello schermo.  
 Per rendere possibile questo sono stati necessari due accorgimenti:
-1. Sfruttando il contesto Canvas 2D e la sua funzione `drawImage` ho realizzato le due touchCanvas illustrate nella sezione [Introduzione](#avvio-dellapplicazione-e-suo-utilizzo).
+1. Sfruttando il contesto Canvas 2D e la sua funzione `drawImage` ho realizzato le due touchCanvas illustrate dall'immagine nella sezione [Introduzione](#avvio-dellapplicazione-e-suo-utilizzo).
 2. Ho associato alle suddette canvas delle funzioni listener sia per gli eventi `mouseDown`, `mouseMove` e `mouseUp` che per i rispettivi `touchStart`, `touchMove` e `touchEnd`.
   Le funzioni listener non fanno altro che calcolare le coordinate canvas del punto che è stato cliccato/toccato e comandare il movimento camera (o carrera) opportuno.  
 
-In questo modo l'applicazione risulta fruibile anche da dispositivi privi di tastiera e mouse.
+In questo modo l'applicazione risulta fruibile anche su dispositivi privi di tastiera e mouse.
 
 # Illuminazione
 
