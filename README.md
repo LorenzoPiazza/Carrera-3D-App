@@ -6,7 +6,7 @@ La Carrera Autopodistica è una competizione che prende luogo nel mese di settem
 Le macchinine che gareggiano sono dette carrere e sono veicoli senza motore, a spinta umana. Per ogni carrera l’equipaggio è composto da un pilota più quattro spingitori che si danno il cambio nella spinta della macchina realizzando una staffetta. Protagonista della scena dell’applicazione che ho sviluppato è la carrera del Team Volpe, squadra in cui corro.
 
 ### Avvio dell’applicazione e suo utilizzo
-Prima di avviare l’applicazione è necessario lanciare un **server locale** che permetta il recupero di risorse cross-origin quali texture e file.obj ??  
+Prima di avviare l’applicazione è necessario lanciare un **server locale** che permetta il recupero di risorse cross-origin quali texture e file.obj ??????  
 1. Aprire una shell dei comandi nella cartella `/project`.
 2. Digitare il comando `python -m http.server 8000`
 3. Aprire una pagina browser all’indirizzo `localhost:8000`
@@ -21,7 +21,7 @@ Una volta avviata, l’applicazione si presenta composta da quattro elementi pri
 
 L’applicazione presenta due differenti modalità d’uso, che possono essere scelte mediante il pannello UI in alto a sinistra.
 - **Modalità scena:** In questa modalità l’utente è libero di navigare la scena per osservarne la composizione e i dettagli.
-La navigazione nella scena è realizzata mediante opportuni movimenti della camera. Per maggiori dettagli si veda la sezione Movimento della Camera.
+La navigazione nella scena è realizzata mediante opportuni movimenti della camera. Per maggiori dettagli si veda la sezione [Movimento della Camera](#movimento-della-camera).  
 La camera può essere:
   - spostata avanti/indietro/destra/sinistra: tasti `AWSD` da tastiera oppure `touchCanvas1` in basso a sinistra.
   - spostata in alto/basso: tasti `UP/DOWN ARROW` da tastiera.
@@ -29,7 +29,7 @@ La camera può essere:
 
 - **Modalità gara:** In questa modalità l’utente può pilotare la carrera e muoverla all’interno della scena. 
 Sono disponibili due differenti inquadrature: **visuale spingitore** e **visuale dall’alto** che settano diverse posizioni iniziali della camera.
-In modalità gara poi, è possibile simulare il cosiddetto **lancio della carrera**, ossia il gesto compiuto dallo spingitore per permettere il cambio della staffettista. Viene quindi realizzato un incremento di accelerazione cui segue una progressiva decelerazione della macchina. In tutto questo la posizione della camera che gradualmente si ferma, proprio come lo spingitore che smette di correre avendo terminato la corsa.
+In modalità gara poi, è possibile simulare il cosiddetto **lancio della carrera**, ossia il gesto compiuto dallo spingitore per permettere il cambio della staffettista. Viene quindi realizzato un incremento di accelerazione cui segue una progressiva decelerazione della macchina. In tutto questo la posizione della camera che gradualmente si ferma, proprio come lo spingitore che smette di correre avendo terminato la corsa.  
 È possibile:
   - pilotare la carrera: tasti `AWSD` da tastiera oppure `touchCanvas1` in basso a sinistra.
   - lanciare la carrera: tasto `SPACEBAR` oppure `click/tap` sulla Canvas principale.
@@ -113,7 +113,9 @@ E' stato necessario introdurre una funzione realign() che permettesse di ricalco
 
 
 ### Portabilità su dispositivi touch screen
-
+In un’ottica di portabilità dell’applicazione e di compatibilità con dispositivi touchscreen le varie interazioni utente sono possibili sia tramite tastiera e mouse che tramite touch dello schermo.  
+Per rendere possibile questo sono stati necessari due accorgimenti:
+1. Sfruttando il contesto Canvas 2D e la sua funzione `drawImage` ho realizzato le due touchCanvas illustrate nella sezione [Introduzione](#avvio
 
 # Illuminazione
 
