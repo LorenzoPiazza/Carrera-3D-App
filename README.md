@@ -1,4 +1,5 @@
-## Progetto di Lorenzo Piazza
+## Progetto di Fondamenti di Computer Graphics
+## Lorenzo Piazza
 
 # Introduzione
 
@@ -27,7 +28,7 @@ La navigazione nella scena è realizzata mediante opportuni movimenti della came
 La **camera** può essere:
   - spostata **avanti/indietro/destra/sinistra**: tasti `AWSD` da tastiera oppure `touchCanvas1` in basso a sinistra.
   - spostata in **alto/basso**: tasti `UP/DOWN ARROW` da tastiera.
-  - **ruotata**: tasti `LEFT/RIGHT ARROW` + `NUM8/NUM5` da tastiera oppure `touchCanvas2` in basso a destra.
+  - **ruotata**: tasti `LEFT/RIGHT ARROW` + `NUM8/NUM5` da tastiera oppure `touchCanvas2` in basso a destra.  
 
 - **Modalità gara:** In questa modalità l’utente può pilotare la carrera e muoverla all’interno della scena. 
 Sono disponibili due differenti inquadrature: **visuale spingitore** e **visuale dall’alto** che settano diverse posizioni iniziali della camera.
@@ -72,11 +73,11 @@ Così, in ogni punto del codice di progetto ho potuto riferirmi facilmente ad un
 La scena dell'applicazione è composta da diverse Mesh che vengono importate da altrettanti file in formato **Wavefront OBJ**. Le più complicate (la casa, la fotocamera, il cartello autostradale, la carrera) sono state reperite online mentre quelle più semplici come la strada o il sole le ho create su Blender e poi le ho esportate.   
 Per importare le mesh nella scena utilizzo la funzione `loadMeshObj` presente nel file obj-mesh.  
 Essa sfrutta il modulo **JQuery Ajax** per accedere in modo asincrono alla risorsa .obj desiderata. Una volta ottenuta, esegue i seguenti 3 passi:
-**1. Lettura e parsing del file obj. [1]**
-**2. Creazione di un oggetto Mesh con i dati letti. [2]**
-**3. Inserimento dell’oggetto Mesh in un array che conterrà tutte le mesh di scena. [3]**  
+1. **Lettura e parsing del file obj. [1]**
+2. **Creazione di un oggetto Mesh con i dati letti. [2]**
+3. **Inserimento dell’oggetto Mesh in un array che conterrà tutte le mesh di scena. [3]**  
 
-Alcune note a riguardo:
+Alcune note a riguardo:  
   **[1]** Per rendere possibile una lettura adeguata ho modificato la libreria `glm_light.js` estendendo la funzione *readOBJ* perché oltre a leggere e salvare i dati e gli indici relativi alle posizioni dei vertici si salvasse anche i dati e gli indici relativi alle coordinate uv texture e alle normali dei vertici.
   
   **[2]** Per rendere più pulito e meno ripetitivo il codice ho deciso di definire l'entità **Mesh come oggetto** e di raggruppare in un costruttore le operazioni comuni a tutti gli oggetti Mesh, come la creazione dei buffer WebGL (`createBuffer`), il bind e il caricamento in essi dei dati (`bufferData`).  
@@ -156,7 +157,7 @@ Il programma shader tramite cui ho realizzato l'illuminazione è il *lightTextur
 
 Per evitare che il *soleMesh* fosse condizionato da luci e ombre come gli altri oggetti in scena ho fatto in modo che il suo colore non fosse influenzato dalla sua posizione ma fosse uniforme. Nel fragment shader infatti, grazie ad uno Uniform controllo se sto renderizzando il sole e, nel caso, evito di fare i calcoli vettoriali determinando il suo colore solo in base ai parametri Ka, Kd e Ks del suo materiale, rispettivamente moltiplicati per Ia, Id e Is.
 
-![luciGif](/docs/img/luci.gif){:align="center" width="85%" margin="auto"}
+![luciGif](/docs/img/luci.gif){:align="center" width="100%" margin="auto"}
 
 # Particolarità
 
@@ -178,14 +179,14 @@ L'algoritmo richiede che la scena venga resa due volte:
  Il programma shader che ho utilizzato per la resa con ombre si chiama *shadowProgram* ed è molto simile al *lightTextureProgram* usato per la resa di luci e texture. Per calcolare il colore dei fragment in luce il Fragment Shader dello *shadowProgram* si comporta in modo analogo a quello del *lightTextureProgram*.  
  La differenza sta nel calcolo del colore dei fragment in ombra, per i quali considera solo la componente luce ambiente (+ quella texture se presente).
  
- - **Accorgimenti**
+ - **Accorgimenti**  
    Dal momento che applicare lo Shadow Buffer aumenta inevitabilmente il costo computazionale (devo fare 2 render anzichè 1) una scelta che ho fatto **per migliorare le performance** è stata quella di effettuare il primo render con un programma Shader il più semplice possibile. Dal momento che l'unico output importante del primo render è lo shadow Buffer, esso ignora dettagli quali texture e luci e renderizza curandosi solo delle posizioni dei vertici.
    Inoltre, per evitare che la mesh rappresentante il sole generi ombra, essa è stata esclusa dal primo render.
  
-  - **Criticità**
+  - **Criticità**  
     Nella resa con le ombre sono presenti alcuni difetti. Se attiviamo il movimento del sole, oppure ci spostiamo molto con la carrera possiamo notare ombre non coerenti in punti lontani dal centro della scena. Il motivo di ciò è che **lo Shadow Buffer contiene le informazioni ombra solo di una parte di scena**, cioè di quella che si trova nel frustum del primo render. Dal momento che la scena è molto ampia ci saranno quindi porzioni di scena per cui non disponiamo delle informazioni ombra e che quindi non verranno rese correttamente.
  
- ![ombreGif](/docs/img/ombre.gif){:align="center" width="90%" margin="auto"}
+ ![ombreGif](/docs/img/ombre.gif){:align="center" width="100%" margin="auto"}
 
 ### Fotocamera che segue la carrera
 Se pensiamo alla camera da cui guardiamo la scena come se fosse un qualsiasi oggetto, anch’essa avrà una posizione ben definita nella scena, come tutti gli altri oggetti.  
@@ -197,7 +198,7 @@ Definendo come `target` un punto in movimento, al muoversi del target la matrice
 Ho applicato questa tecnica per animare la mesh *fotocameraMesh* in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
 La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione. Come view up vector invece ho passato il vettore standard [0,1,0].
 
-![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="85%" margin="auto"}
+![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="100%" margin="auto"}
 
 
 # Migliorie future
