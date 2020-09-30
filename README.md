@@ -138,9 +138,15 @@ Per rendere possibile questo sono stati necessari due accorgimenti:
 In questo modo l'applicazione risulta fruibile anche su dispositivi privi di tastiera e mouse.
 
 # Illuminazione
-Nella scena è presente una sorgente luminosa che, per renderla visibile, ho posizionato nel centro di una sfera: il *soleMesh*.  
-Come modello di illuminazione ho applicato il **modello di Phong** implementando l'algoritmo di **Phong Shading**.  
-Per evitare che il *soleMesh* fosse condizionato da luci e ombre come gli altri oggetti in scena ho fatto in modo che il suo colore non fosse influenzato dalla sua posizione ma fosse uniforme. 
+Nella scena è presente una sorgente luminosa che, per rendere visibile, ho posizionato nel centro di una sfera: il *soleMesh*. Tramite il pannello UI è possibile richiedere l'animazione del sole il quale, muovendosi, modificherà l'illuminazione della scena.    
+Ho applicato il **modello di illuminazione di Phong** secondo cui il colore di un fragment dipende da 3 componenti: **componente ambiente**, **componente di riflessione diffusa** e **componente di riflessione speculare.**  
+A loro volta, queste dipendono da proprietà della luce, da proprietà del materiale e da alcuni calcoli vettoriali.  
+Nel mio codice ho definito delle strutture dati *materiali* contenenti i coefficienti caratterizzanti il materiale **(Ka, Kd, Ks e shininess)** e le ho associate alle mesh. Per quanto riguarda la luce invece mi sono limitato a definirne tre valori di intensità **(intensità ambiente, diffusa e speculare).** Grazie ai coefficenti materiali ho potuto definire a piacimento il colore delle mesh non texturate. Non ho mai dovuto quindi salvare o passare dei dati colore per vertici.  
+Il programma shader tramite cui ho realizzato l'illuminazione è il *lightTextureProgram* e implementa l'algoritmo **Phong Shading**. Secondo questo algoritmo, il modello di illuminazione viene applicato a livello di Fragment shader, in modo che possa essere applicato su ogni singolo fragment. Rispetto ad altri algoritmi come il Flat Shading o il Gouraud Shading è computazionalmente più costoso ma assicura risultati migliori.
+
+Per evitare che il *soleMesh* fosse condizionato da luci e ombre come gli altri oggetti in scena ho fatto in modo che il suo colore non fosse influenzato dalla sua posizione ma fosse uniforme. Nel fragment shader infatti, grazie ad uno Uniform controllo se sto renderizzando il sole e, nel caso, evito di fare i calcoli vettoriali e determino il suo colore solo in base ai parametri Ka, Kd e Ks del suo materiale, rispettivamente moltiplicati per Ia, Id e Is.
+
+![luciGif](/docs/img/luci.gif){:align="center" width="85%" margin="auto"}
 
 # Particolarità
 
@@ -177,8 +183,6 @@ La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m
 
 ![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="85%" margin="auto"}
 
-
-### Resize della canvas
 
 # Migliorie future
 Alcune migliorie che potrei apportare all'applicazione sono quelle di curare maggiormente la modalità gara ad esempio aggiungendo un controllo delle collisioni.  
