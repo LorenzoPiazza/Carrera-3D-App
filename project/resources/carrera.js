@@ -1,9 +1,9 @@
 // carrera.js
-// implementazione dei metodi che permettono il movimento della carrera.
+// Implementazione dei metodi che permettono il movimento della carrera.
 
   // STATO DELLA MACCHINA
   // (DoStep fa evolvere queste variabili nel tempo)
-  var px,py,pz,facing; // posizione e orientamento (della carrozzeria!?)
+  var px,py,pz,facing; // posizione e orientamento
   var mozzoA, mozzoP, sterzo; // stato interno
   var vx,vy,vz; // velocita' attuale
 
@@ -98,14 +98,14 @@ function CarreraDoStep(){
   px+=vx;
   py+=vy;
   pz+=vz;
+  
+  //TODO: Controllo collisioni
 	// if(px+Math.abs(2*Math.cos(facing)) > 3 || px-Math.abs(2*Math.cos(facing)) < -3	)
 		// px-=vx;
 	// else
 		// px+=vx;
 	// py+=vy;
 	// pz+=vz;
-  // console.log("vz: " +vz);
-  // console.log("vzm: " +vzm);
 }
 
 

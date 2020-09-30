@@ -3,7 +3,8 @@
 
 /*
  * In questo file salvo come variabili testuali i vari Vertex Shaders e Fragment Shaders che utilizzo nel progetto.
- * E' presente anche una funzione, initPrograms(), che a partire dai sorgenti degli shaders crea i programmi si salva i puntatori agli Attribute e Uniform di quel programma.
+ * E' presente anche una funzione, initPrograms(), che a partire dai sorgenti degli shaders crea i programmi si salva
+ * i puntatori agli Attribute e Uniform di quel programma.
  */
  
  

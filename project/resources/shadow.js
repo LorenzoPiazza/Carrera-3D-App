@@ -104,6 +104,8 @@ function renderOnShadowBuffer(){
     gl.bindFramebuffer(gl.FRAMEBUFFER,  null);
 }
 
+
+/*=================== DRAWING =================== */
 function renderWithShadow(){		
 	/****** 1.Renderizzo sullo shadow frame buffer ******/
 	// lightPos = [camera_pos[0], camera_pos[1]-3, camera_pos[2]];

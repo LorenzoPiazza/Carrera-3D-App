@@ -11,7 +11,7 @@
  
 var meshes = [];		//Array di oggetti in cui memorizzo tutte le mesh della scena
 
-//Costruttore dell'oggetto Mesh
+/************************** COSTRUTTORE **************************/
 function Mesh(meshName, meshData, initial_mo_matrix, material, texture) {
 	//CREO I BUFFER per questa mesh
 	this.vertexBuffer = gl.createBuffer();
@@ -80,6 +80,7 @@ function Mesh(meshName, meshData, initial_mo_matrix, material, texture) {
 }
  
  
+ /************************** LOAD MESH OBJ **************************/
 /* loadMeshObj: Funzione di caricamento asincrono della mesh.
  * 
  * 1.Legge il file .OBJ desiderato.
@@ -145,7 +146,7 @@ function drawMesh(item){
 
 
 
-/************************** DRAW WITH TEXTURE AND LIGHT **************************/
+/************************** DRAW THE MESH WITH TEXTURE AND LIGHT **************************/
 
 function drawLightTextureMesh(item){
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
@@ -244,7 +245,7 @@ function drawLightTextureMesh(item){
 }
 
 
-/************************** DRAW ON THE SHADOW FRAME BUFFER **************************/		//(E' una standard draw, senza colori, tanto mi interessano solo i depth values)
+/************************** DRAW THE MESH ON THE SHADOW FRAME BUFFER **************************/		//(E' una standard draw, senza colori, tanto mi interessano solo i depth values)
 function drawOnShadowBufferMesh(item){
 	if(item.meshName == "soleMesh")		//Il sole non devo disegnarlo in quanto è la mia sorgente luminosa.
 		return;
@@ -303,7 +304,7 @@ function drawOnShadowBufferMesh(item){
 }
 
 
-/************************** DRAW WITH TEXTURE, LIGHT AND SHADOWS **************************/
+/************************** DRAW THE MESH WITH TEXTURE, LIGHT AND SHADOWS **************************/
 var toLightPovMatrix;
 function drawLightTextureShadowMesh(item){
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
