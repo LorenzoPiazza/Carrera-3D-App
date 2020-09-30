@@ -6,8 +6,8 @@ La Carrera Autopodistica è una competizione che prende luogo nel mese di settem
 Le macchinine che gareggiano sono dette carrere e sono veicoli senza motore, a spinta umana. Per ogni carrera l’equipaggio è composto da un pilota più quattro spingitori che si danno il cambio nella spinta della macchina realizzando una staffetta. Protagonista della scena dell’applicazione che ho sviluppato è la carrera del Team Volpe, squadra in cui corro.
 
 ### Avvio dell’applicazione e suo utilizzo
-Prima di avviare l’applicazione è necessario lanciare un **server locale** che permetta il recupero di risorse cross-origin quali texture e file.obj ??????  
-1. Aprire una shell dei comandi nella cartella `/project`.
+Prima di avviare l’applicazione è necessario lanciare un **server locale** che permetta il corretto recupero di risorse esterne (quali immagini, file .obj ...).    
+1. Aprire una shell nella cartella `/project`.
 2. Digitare il comando `python -m http.server 8000`
 3. Aprire una pagina browser all’indirizzo `localhost:8000`
 
@@ -25,7 +25,7 @@ La navigazione nella scena è realizzata mediante opportuni movimenti della came
 La camera può essere:
   - spostata avanti/indietro/destra/sinistra: tasti `AWSD` da tastiera oppure `touchCanvas1` in basso a sinistra.
   - spostata in alto/basso: tasti `UP/DOWN ARROW` da tastiera.
-  - ruotata: tasti `LEFT/RIGHT ARROW + NUM8/NUM5` da tastiera oppure `touchCanvas2` in basso a destra.
+  - ruotata: tasti `LEFT/RIGHT ARROW` + `NUM8/NUM5` da tastiera oppure `touchCanvas2` in basso a destra.
 
 - **Modalità gara:** In questa modalità l’utente può pilotare la carrera e muoverla all’interno della scena. 
 Sono disponibili due differenti inquadrature: **visuale spingitore** e **visuale dall’alto** che settano diverse posizioni iniziali della camera.
@@ -79,7 +79,7 @@ Essa sfrutta il modulo **JQuery Ajax** per accedere in modo asincrono alla risor
   **[3]** Una volta completati gli import mi ritrovo quindi con un array di oggetti Mesh. Questo array è utile nella funzione di render dove, per ogni mesh in esso contenuta, invoco l'opportuna funzione `drawMesh` o una sua variante.  
 Le funzioni relative all’importazione e disegno della mesh le ho raggruppate nel file `obj-mesh.js`, eccezion fatta per la funzione readOBJ che si trova, come già puntualizzato precedente, nel file `glm_light_plus.js`.
 
-### Utilizzo di Blender ![blenderLogo](/docs/img/blender-logo-vector.png)
+### Utilizzo di Blender <img align="left" width="150" height="150" src="/docs/img/blender-logo-vector.png">
 Quasi tutte le mesh che ho recuperato online si presentavano in posizioni, dimensioni e orientamenti diversi da quelli che desideravo.  
 Per ridurre le operazioni di trasformazione nel codice della mia applicazione ho importato le mesh originali sul software Blender e ne ho definito la **geometria iniziale** (centrandole nell’origine degli assi, orientandole nel verso desiderato con delle rotazioni, rimpicciolendole…).
 Per alcune mesh ho sfruttato Blender anche in fase di esportazione del nuovo file .obj, in modo da **triangolare le facce** che in origine si presentavano quadrate. Questo era necessario in quanto WebGL (e più in generale molti algoritmi di CG) lavorano con mesh a faccette piane triangolari.    
@@ -91,7 +91,7 @@ Blender si è poi rivelato fondamentale nella gestione della mesh Carrera. In or
 In questo modo mi è stato possibile definire movimenti diversi a seconda dell’esigenza della singola mesh. Le ruote, ad esempio, hanno necessità di ruotare intorno all’asse X, la carrozzeria invece no.  
 La geometria iniziale delle ruote e anche della carrozzeria è stata definita con centro nell’origine degli assi in modo da poter apportare rotazioni opportune. Questo mi ha permesso di **alleggerire le operazioni di render** poichè avrei comunque dovuto traslarle nel centro degli assi e lo avrei fatto a livello di codice.
 
-![carreraNoRuote](/docs/img/carreraNoRuote.png) ![ruota](/docs/img/ruota.png)
+![carreraNoRuote](/docs/img/carreraNoRuote.png | width=50%) ![ruota](/docs/img/ruota.png | width=50%)
 
 Blender è stato molto utile anche per applicare le texture alle mie mesh definendo il mapping UV ed esportando le coordinate texture nel file .obj.  
 Parlerò di Texture nella prossima sezione.
