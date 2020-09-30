@@ -122,7 +122,7 @@ L’applicazione permette all’utente di navigare liberamente all’interno del
 A questo fine ho raggruppato tutte le funzioni di movimento e rotazione camera nel file `camera-utils.js`. Esse agiscono modificando le variabili globali **camera_pos**, **target** e **viewUp**, le quali poi saranno usate all'interno della funzione di render per calcolare la matrice di vista.  
 Per evitare calcoli superflui ho fatto in modo che la matrice di vista venga ricalcolata solo se necessario e questo controllo viene fatto sfruttando una variabile booleana *viewParamsChanged* che tiene traccia della modifica dei parametri di vista. Questo mi ha permesso di ottenere **una funzione di render più efficiente.**  
 È possibile effettuare dei movimenti traslatori **(up, down, left e right)** in cui viene traslata sia la posizione della camera che quella del target oppure ottenere un effetto di rotazione della visuale **(rotateLeft/Right e rotateDown/Up)** ruotando rispettivamente attorno agli assi Ye e Xe della camera il target e lasciando fissa la posizione della camera.  
-E' stato necessario introdurre una funzione realign() che permettesse di ricalcolare le giuste direzioni degli assi Xe - Ye - Ze in seguito alle rotazioni della camera. Il loro ricalcolo permette di operare delle traslazioni che siano sempre coerenti con l'orientamento attuale della camera, dando all'utente una sensazione di naturalezza nel movimento.
+E' stato necessario introdurre una funzione `realign()` che permettesse di ricalcolare le giuste direzioni degli assi Xe - Ye - Ze in seguito alle rotazioni della camera. Il loro ricalcolo permette di operare delle traslazioni che siano sempre coerenti con l'orientamento attuale della camera, dando all'utente una sensazione di naturalezza nel movimento.
 
 
 ### Movimento della carrera
@@ -145,7 +145,7 @@ Per evitare che il *soleMesh* fosse condizionato da luci e ombre come gli altri 
 # Particolarità
 
 ### Resa con Ombre
-![ombreGif](/docs/img/ombre.gif){:align="center" width="85%" margin="auto"}
+![ombreGif](/docs/img/ombre.gif){:align="center" width="90%" margin="auto"}
 Come tecnica di rendering avanzato, attivabile tramite pannello UI, ho implementato la resa con le ombre utilizzando l'algoritmo **Shadow Buffer.**  
 L'obiettivo alla base di questo algoritmo è molto semplice: per ogni fragment della scena, determinare se questo è in luce oppure in ombra (cioè non in grado di ricevere direttamente la luce) e quindi colorarlo opportunamente. 
 L'algoritmo richiede che la scena venga resa due volte:
@@ -181,5 +181,5 @@ La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m
 ### Resize della canvas
 
 # Migliorie future
-Alcune migliorie che potrei aggiungere all'applicazione sono quelle di curare maggiormente la modalità gara ad esempio aggiungendo un controllo delle collisioni.  
+Alcune migliorie che potrei apportare all'applicazione sono quelle di curare maggiormente la modalità gara ad esempio aggiungendo un controllo delle collisioni.  
 Potrei aggiungere poi nuove funzionalità. Una che mi viene in mente è quella di aggiungere una canvas ulteriore in cui fare il rendering della scena dal punto di vista della fotocamera, e magari dare la possibilità all'utente di *scattare una foto* della carrera congelando l'immagine. L'effetto si potrebbe ottenere facilmente smettendo di renderizzare ed evitando di pulire la canvas.
