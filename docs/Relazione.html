@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)https://lorenzopiazza.github.io/Carrera_3DWebApp/ -->
+<html lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Progetto di Fondamenti di Computer Graphics | Carrera_3DWebApp</title>
+<meta name="generator" content="Jekyll v3.9.0">
+<meta property="og:title" content="Progetto di Fondamenti di Computer Graphics">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="Una 3D-Web App realizzata usando WebGL (HTML5, CSS e contesto WebGL) e linguaggio JavaScript + GL SL.">
+<meta property="og:description" content="Una 3D-Web App realizzata usando WebGL (HTML5, CSS e contesto WebGL) e linguaggio JavaScript + GL SL.">
+<link rel="canonical" href="https://lorenzopiazza.github.io/Carrera_3DWebApp/">
+<meta property="og:url" content="https://lorenzopiazza.github.io/Carrera_3DWebApp/">
+<meta property="og:site_name" content="Carrera_3DWebApp">
+<script type="application/ld+json">
+{"@type":"WebSite","headline":"Progetto di Fondamenti di Computer Graphics","url":"https://lorenzopiazza.github.io/Carrera_3DWebApp/","description":"Una 3D-Web App realizzata usando WebGL (HTML5, CSS e contesto WebGL) e linguaggio JavaScript + GL SL.","name":"Carrera_3DWebApp","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <link rel="stylesheet" href="./Relazione_files/style.css">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Carrera_3DWebApp</h1>
+      <h2 class="project-tagline">Una 3D-Web App realizzata usando WebGL (HTML5, CSS e contesto WebGL) e linguaggio JavaScript + GL SL.</h2>
+      
+        <a href="https://github.com/LorenzoPiazza/Carrera_3DWebApp" class="btn">View on GitHub</a>
+      
+      
+    </section>
+
+    <section class="main-content">
+      <h2 id="progetto-di-fondamenti-di-computer-graphics">Progetto di Fondamenti di Computer Graphics</h2>
+<h2 id="lorenzo-piazza">Lorenzo Piazza</h2>
+
+<h1 id="introduzione">Introduzione</h1>
+
+<h3 id="descrizione">Descrizione</h3>
+<p>In questo progetto ho sviluppato una Web Application di grafica 3D a tema <a href="https://en.wikipedia.org/wiki/Carrera_Autopodistica">Carrera Autopodistica</a>.<br>
+La Carrera Autopodistica è una competizione che prende luogo nel mese di settembre per le vie cittadine di Castel San Pietro Terme (BO), città in cui vivo.<br>
+Le macchinine che gareggiano sono dette carrere e sono veicoli senza motore, a spinta umana. Per ogni carrera l’equipaggio è composto da un pilota più quattro spingitori che si danno il cambio nella spinta della macchina realizzando una staffetta. Protagonista della scena dell’applicazione che ho sviluppato è la carrera del Team Volpe, squadra in cui corro.</p>
+
+<h3 id="avvio-dellapplicazione-e-suo-utilizzo">Avvio dell’applicazione e suo utilizzo</h3>
+<p>Prima di avviare l’applicazione è necessario lanciare un <strong>server locale</strong> che permetta il corretto recupero di risorse esterne (quali immagini, file .obj …).</p>
+<ol>
+  <li>Aprire una shell nella cartella <code class="language-plaintext highlighter-rouge">/project</code>.</li>
+  <li>Digitare il comando <code class="language-plaintext highlighter-rouge">python -m http.server 8000</code></li>
+  <li>Aprire una pagina browser all’indirizzo <code class="language-plaintext highlighter-rouge">localhost:8000</code></li>
+</ol>
+
+<p>Una volta avviata, l’applicazione si presenta composta da quattro elementi principali:</p>
+<ul>
+  <li><strong>mainCanvas:</strong> è il riquadro principale. È un oggetto canvas con contesto webGL che realizza la grafica 3D dell’applicazione. Tramite CSS è stato portato in background in modo che possa stare a tutto schermo senza coprire gli altri elementi.</li>
+  <li><strong>textCanvas:</strong> è un oggetto Canvas con contesto 2D che realizza il titolo dell’applicazione.</li>
+  <li><strong>touchCanvas1 e touchCanvas2:</strong> sono due oggetti canvas con contesto 2D su cui viene disegnata l’immagine di un gamepad e che possono essere usati nei dispositivi touch, per sopperire alla mancanza di mouse e tastiera.</li>
+  <li><strong>pannello UI:</strong> è un oggetto div che funge da menù dell’applicazione.</li>
+</ul>
+
+<p><img src="./Relazione_files/intro.png" alt="introImage" align="center"></p>
+
+<p>L’applicazione presenta due differenti modalità d’uso, che possono essere scelte mediante il pannello UI in alto a sinistra.</p>
+<ul>
+  <li><strong>Modalità scena:</strong> In questa modalità l’utente è libero di navigare la scena per osservarne la composizione e i dettagli.
+La navigazione nella scena è realizzata mediante opportuni movimenti della camera. Per maggiori dettagli si veda la sezione <a href="https://lorenzopiazza.github.io/Carrera_3DWebApp/#movimento-della-camera">Movimento della Camera</a>.<br>
+La <strong>camera</strong> può essere:
+    <ul>
+      <li>spostata <strong>avanti/indietro/destra/sinistra</strong>: tasti <code class="language-plaintext highlighter-rouge">AWSD</code> da tastiera oppure <code class="language-plaintext highlighter-rouge">touchCanvas1</code> in basso a sinistra.</li>
+      <li>spostata in <strong>alto/basso</strong>: tasti <code class="language-plaintext highlighter-rouge">UP/DOWN ARROW</code> da tastiera.</li>
+      <li><strong>ruotata</strong>: tasti <code class="language-plaintext highlighter-rouge">LEFT/RIGHT ARROW</code> + <code class="language-plaintext highlighter-rouge">NUM8/NUM5</code> da tastiera oppure <code class="language-plaintext highlighter-rouge">touchCanvas2</code> in basso a destra.</li>
+    </ul>
+  </li>
+  <li><strong>Modalità gara:</strong> In questa modalità l’utente può pilotare la carrera e muoverla all’interno della scena. 
+Sono disponibili due differenti inquadrature: <strong>visuale spingitore</strong> e <strong>visuale dall’alto</strong> che settano diverse posizioni iniziali della camera.
+In modalità gara poi, è possibile simulare il cosiddetto <strong>lancio della carrera</strong>, ossia il gesto compiuto dallo spingitore per permettere il cambio della staffettista. Viene quindi realizzato un incremento di accelerazione cui segue una progressiva decelerazione della macchina. In tutto questo la posizione della camera gradualmente si ferma, proprio come lo spingitore che smette di correre avendo terminato la corsa.<br>
+È possibile:
+    <ul>
+      <li><strong>pilotare la carrera</strong>: tasti <code class="language-plaintext highlighter-rouge">AWSD</code> da tastiera oppure <code class="language-plaintext highlighter-rouge">touchCanvas1</code> in basso a sinistra.</li>
+      <li><strong>lanciare la carrera</strong>: tasto <code class="language-plaintext highlighter-rouge">SPACEBAR</code> oppure <code class="language-plaintext highlighter-rouge">click/tap</code> sulla Canvas principale.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>È possibile infine, tramite il pannello UI, settare alcuni parametri addizionali come la <strong>sensibilità di movimento della camera</strong>, richiedere il <strong>movimento del sole</strong> e l’attivazione/disattivazione di tecniche di resa avanzate quali le <strong>ombre</strong>.</p>
+
+<h3 id="struttura-del-progetto">Struttura del progetto</h3>
+<ul>
+  <li>/project/
+    <ul>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">index.html</code>: è il file html dell’applicazione. Contiene anche del codice Javascript tra cui le funzioni da eseguire all’avvio e la funzione di render.</p>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">shaders.js</code>: è un file al cui interno sono definiti i vari Vertex Shaders e Fragment Shaders usati nell’applicazione. Sono definiti nel linguaggio GLSL e salvati come variabili stringhe.<br>
+È presente anche una funzione, <em>initPrograms</em>, che a partire dai sorgenti degli shaders crea i relativi programmi WebGL e si salva i puntatori agli Attribute e Uniform di quel programma. <em>initPrograms</em> verrà invocata nel file index.html.<br>
+Sia i programmi che i puntatori sono salvati in oggetti globali chiamati rispettivamente <code class="language-plaintext highlighter-rouge">programList</code> e <code class="language-plaintext highlighter-rouge">_nomeProgramma_Locs</code>.
+Così, in ogni punto del codice di progetto ho potuto riferirmi facilmente ad un programma o ad un puntatore ad una sua location.</p>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">/data</code>: è una cartella che contiene i file .obj delle mesh presenti in scena e le immagini texture.</p>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">/resources</code>: è una cartella che contiene i file di script .js.<br>
+Alcuni sono le librerie viste all’interno del corso:</p>
+        <ul>
+          <li><em>glm_light_plus.js</em> (estensione della glm_light.js)</li>
+          <li><em>subdiv.js</em></li>
+          <li><em>m4.js</em></li>
+          <li><em>webgl-lessons-ui.js</em></li>
+          <li><em>webgl-utils.js</em></li>
+        </ul>
+
+        <p>Poi vi sono altri file di script che ho realizzato. All’inizio di ciascuno di questi file ho scritto alcune righe di commento a cui rimando per maggiori dettagli sulle loro funzionalità:</p>
+        <ul>
+          <li><em>carrera.js:</em> si occupa della fisica della carrera.</li>
+          <li><em>camera-utils.js:</em> gestione del movimento della camera.</li>
+          <li><em>obj-mesh.js:</em> caricamento e disegno di mesh.</li>
+          <li><em>interaction.js:</em> gestione dell’interazione utente.</li>
+          <li><em>shadow.js:</em> gestione delle ombre e funzione di render con ombre.</li>
+        </ul>
+
+        <p>Infine, sono presenti la libreria <em>j-query</em> per l’utilizzo del modulo Ajax (vedi sezione <a href="https://lorenzopiazza.github.io/Carrera_3DWebApp/#Mesh">Mesh</a>) e un file <em>myStyle.css</em>.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="mesh">Mesh</h1>
+
+<h3 id="importazione-e-disegno">Importazione e disegno</h3>
+<p>La scena dell’applicazione è composta da diverse Mesh che vengono importate da altrettanti file in formato <strong>Wavefront OBJ</strong>. Le più complicate (la casa, la fotocamera, il cartello autostradale, la carrera) sono state reperite online mentre quelle più semplici come la strada o il sole le ho create su Blender e poi le ho esportate. <br>
+Per importare le mesh nella scena utilizzo la funzione <code class="language-plaintext highlighter-rouge">loadMeshObj</code> presente nel file obj-mesh.<br>
+Essa sfrutta il modulo <strong>JQuery Ajax</strong> per accedere in modo asincrono alla risorsa .obj desiderata. Una volta ottenuta, esegue i seguenti 3 passi:</p>
+<ol>
+  <li><strong>Lettura e parsing del file obj. [1]</strong></li>
+  <li><strong>Creazione di un oggetto Mesh con i dati letti. [2]</strong></li>
+  <li><strong>Inserimento dell’oggetto Mesh in un array che conterrà tutte le mesh di scena. [3]</strong></li>
+</ol>
+
+<p>Alcune note a riguardo:<br>
+  <strong>[1]</strong> Per rendere possibile una lettura adeguata ho modificato la libreria <code class="language-plaintext highlighter-rouge">glm_light.js</code> estendendo la funzione <em>readOBJ</em> perché oltre a leggere e salvare i dati e gli indici relativi alle posizioni dei vertici si salvasse anche i dati e gli indici relativi alle coordinate uv texture e alle normali dei vertici.</p>
+
+<p><strong>[2]</strong> Per rendere più pulito e meno ripetitivo il codice ho deciso di definire l’entità <strong>Mesh come oggetto</strong> e di raggruppare in un costruttore le operazioni comuni a tutti gli oggetti Mesh, come la creazione dei buffer WebGL (<code class="language-plaintext highlighter-rouge">createBuffer</code>), il bind e il caricamento in essi dei dati (<code class="language-plaintext highlighter-rouge">bufferData</code>).<br>
+  Questa scelta si è rivelata vantaggiosa ai fini della scrittura del codice in quanto lavorare con l’astrazione dell’oggetto, facilmente distinguibile tramite un campo univoco <em>meshName</em>, ha reso facile settare le sue proprietà in fase di caricamento, come la matrice di posizionamento iniziale, la texture, il materiale, e allo stesso tempo ha permesso di accedervi agilmente quando necessario (ad esempio in fase di disegno).<br>
+  Ed infatti è stato possibile generalizzare anche la fase di disegno definendo un’unica funzione <code class="language-plaintext highlighter-rouge">drawMesh</code> (nelle sue varianti <code class="language-plaintext highlighter-rouge">drawLightTextureMesh</code>, <code class="language-plaintext highlighter-rouge">drawLightTextureShadowMesh</code> in base al tipo di resa desiderata) da invocare passandole come parametro la mesh da disegnare.</p>
+
+<p><strong>[3]</strong> Una volta completati gli import mi ritrovo quindi con un array di oggetti Mesh. Questo array è utile nella funzione di render dove, per ogni mesh in esso contenuta, invoco l’opportuna funzione <code class="language-plaintext highlighter-rouge">drawMesh</code> o una sua variante.<br>
+Le funzioni relative all’importazione e disegno della mesh le ho raggruppate nel file <code class="language-plaintext highlighter-rouge">obj-mesh.js</code>, eccezion fatta per la funzione readOBJ che si trova, come già puntualizzato precedente, nel file <code class="language-plaintext highlighter-rouge">glm_light_plus.js</code>.</p>
+
+<h3 id="utilizzo-di-blender-">Utilizzo di Blender <img src="./Relazione_files/blender-logo-vector.png" alt="blenderLogo" align="right" width="250" height="150"></h3>
+<p>Quasi tutte le mesh che ho recuperato online si presentavano in posizioni, dimensioni e orientamenti diversi da quelli che desideravo.<br>
+Per ridurre le operazioni di trasformazione nel codice della mia applicazione ho importato le mesh originali sul software Blender e ne ho definito la <strong>geometria iniziale</strong> (centrandole nell’origine degli assi, orientandole nel verso desiderato con delle rotazioni, rimpicciolendole…).<br>
+Per alcune mesh ho sfruttato Blender anche in fase di esportazione del nuovo file .obj, in modo da <strong>triangolare le facce</strong> che in origine si presentavano quadrate. Questo era necessario in quanto WebGL (e più in generale molti algoritmi di CG) lavorano con mesh a faccette piane triangolari.</p>
+
+<p>Blender si è poi rivelato fondamentale nella gestione della <strong>mesh Carrera</strong>. In origine questa mesh si presentava definita come un unico oggetto fatto da carrozzeria e ruote. Ho usato Blender per <strong>suddividerla</strong> nelle seguenti 3 mesh:</p>
+<ul>
+  <li>carrozzeria.</li>
+  <li>ruota Destra.</li>
+  <li>ruota Sinistra.<br>
+In questo modo mi è stato possibile definire movimenti diversi a seconda dell’esigenza della singola mesh. Le ruote, ad esempio, hanno necessità di ruotare intorno all’asse X, la carrozzeria invece no.<br>
+La geometria iniziale delle ruote e anche della carrozzeria è stata definita con centro nell’origine degli assi in modo da poter apportare rotazioni opportune. Questo mi ha permesso di <strong>alleggerire le operazioni di render</strong> poichè avrei comunque dovuto traslarle nel centro degli assi e lo avrei fatto a livello di codice.</li>
+</ul>
+
+<p><img src="./Relazione_files/carreraNoRuote.png" alt="carreraNoRuote" align="center" float="left" width="45%"> <img src="./Relazione_files/ruota.png" alt="ruota" align="center" float="right" width="45%"></p>
+
+<p>Blender è stato molto utile anche per definire il mapping UV delle texture da applicare alle mie mesh ed esportarlo in seguito nel file .obj.<br>
+Parlerò di Texture nella prossima sezione.</p>
+
+<h3 id="texture">Texture</h3>
+<p>Per migliorare l’aspetto della scena ho texturato la maggior parte delle mesh presenti usando un <strong>Texture Mapping 2D.</strong> Ho texturato la carrera, le ruote, la fotocamera, i pannelli pubblicitari e la strada. Tutte le immagini texture sono state ridimensionate ad una size <em>2^n</em> x <em>2^n</em>.</p>
+
+<p>Questo mi ha permesso di applicare la tecnica del <strong>Mip Mapping</strong> che si è rivelata molto utile nella mia applicazione: in modalità scena, infatti, l’utente può allontanarsi o avvicinarsi ad un oggetto texturato. Questo significa che la texture potrà dover essere resa a schermo con differenti risoluzioni (sempre minori man mano che mi allontano con la camera).<br>
+Il mipmap genera una <em>mipmap chain</em>, ossia per ogni texture genera e salva n-1 texture, ciascuna 1/4 di risoluzione della precedente.<br>
+Così facendo, in fase di render WebGL potrà scegliere dalla <em>mipmap chain</em> la texture che più si adatta alla risoluzione delle facce da texturare e, se necessario, applicherà la procedura di minification a partire dalla texture scelta e non dalla texture di risoluzione massima. Questo comporta un aumento delle performance (poichè avrò minification più snelle) e un aumento della qualità delle immagine rese.</p>
+
+<p>Il procedimento che ho seguito per applicare il texture Mapping 2D è stato il seguente:</p>
+<ol>
+  <li>In fase di init, <strong>caricamento delle immagini e creazione della texture:</strong><br>
+  per svincolarmi dal tempo di caricamento delle immagini e iniziare quanto prima il render della scena, all’inizio definisco e utilizzo una texture di default di colore Blu. Poi, nel momento in cui l’immagine voluta è stata caricata (<code class="language-plaintext highlighter-rouge">image.onload</code>), applico il Mip Mapping e la sovrascrivo a quella di default.</li>
+  <li>Sempre in fase di init, <strong>loading delle mesh dai file .obj passando come parametro al costruttore la texture corrispondente.</strong></li>
+  <li>In fase di disegno della mesh, <strong>controllo se per la mesh corrente è presente una texture:</strong><br>
+  in caso affermativo, creo l’associazione tra attribute e il buffer con le coordinate texture, attivo una Texture Unit (
+<code class="language-plaintext highlighter-rouge">gl.activeTexture(gl.TEXTURE0)</code> ), vi associo la texture desiderata ( <code class="language-plaintext highlighter-rouge">gl.bindTexture(gl.TEXTURE_2D, item.texture)</code> ) e infine associo lo uniform alla Texture Unit attivata.</li>
+</ol>
+
+<p>Dal momento che il colore di un oggetto in scena è condizionato sia dalla <strong>texture</strong> che dall’<strong>illuminazione</strong>, ho realizzato un unico programma Shader chiamato <em>lightTextureProgram</em> e ho definito nel suo fragment shader uno Uniform <code class="language-plaintext highlighter-rouge">mode</code>.</p>
+
+<p>Descriverò più ampiamente il programma <em>lightTextureProgram</em> nella sezione <a href="https://lorenzopiazza.github.io/Carrera_3DWebApp/#Illuminazione">Illuminazione</a>. Per ora mi limito a dire che grazie a <code class="language-plaintext highlighter-rouge">mode</code> mi è stato possibile usare lo stesso programma sia per il render di oggetti texturati che non texturati, distinguendo il calcolo del colore dei primi, che sarà dato da luce + texture, dal calcolo del colore dei secondi, definito invece solo dalla luce.</p>
+
+<p><img src="./Relazione_files/volpeTexture1.png" alt="texture1" float="left" width="45%" height="80%"> <img src="./Relazione_files/volpeTexture2.png" alt="texture" float="right" width="45%"></p>
+
+<h1 id="interazione-utente">Interazione Utente</h1>
+
+<h3 id="movimento-della-camera">Movimento della Camera</h3>
+<p>L’applicazione permette all’utente di navigare liberamente all’interno della scena muovendosi con la camera.<br>
+Tutte le funzioni di movimento e rotazione camera usate per questo fine le ho raccolte nel file <code class="language-plaintext highlighter-rouge">camera-utils.js</code>. Esse agiscono modificando le variabili globali <strong>camera_pos</strong>, <strong>target</strong> e <strong>viewUp</strong>, le quali poi saranno usate all’interno della funzione di render per calcolare la matrice di vista.<br>
+Per evitare calcoli superflui ho fatto in modo che la <strong>matrice di vista venga ricalcolata solo se necessario</strong> e questo controllo viene fatto sfruttando una variabile booleana <em>viewParamsChanged</em> che tiene traccia della modifica dei parametri di vista. Questo mi ha permesso di ottenere <strong>una funzione di render più efficiente.</strong><br>
+È possibile effettuare dei movimenti traslatori <strong>(up, down, left e right)</strong> in cui viene traslata sia la posizione della camera che quella del target oppure ottenere un effetto di rotazione della visuale <strong>(rotateLeft/Right e rotateDown/Up)</strong> ruotando rispettivamente attorno agli assi Ye e Xe della camera il target e lasciando fissa la posizione della camera.<br>
+E’ stato necessario introdurre una funzione <code class="language-plaintext highlighter-rouge">realign()</code> che permettesse di ricalcolare le giuste direzioni degli assi Xe - Ye - Ze della camera in seguito alle rotazioni. Il loro ricalcolo permette di operare delle traslazioni che siano sempre coerenti con l’orientamento attuale della camera, dando all’utente una sensazione di naturalezza nel movimento.</p>
+
+<h3 id="portabilità-su-dispositivi-touch-screen">Portabilità su dispositivi touch screen</h3>
+<p>In un’ottica di portabilità dell’applicazione e di compatibilità con dispositivi touchscreen le varie interazioni utente sono effettuabili sia tramite <strong>tastiera e mouse</strong> che tramite <strong>touch dello schermo</strong>.<br>
+Per rendere possibile questo sono stati necessari due accorgimenti:</p>
+<ol>
+  <li>Sfruttando il contesto Canvas 2D e la sua funzione <code class="language-plaintext highlighter-rouge">drawImage</code> ho realizzato le due touchCanvas illustrate dall’immagine nella sezione <a href="https://lorenzopiazza.github.io/Carrera_3DWebApp/#avvio-dellapplicazione-e-suo-utilizzo">Introduzione</a>.</li>
+  <li>Ho associato alle suddette canvas delle funzioni listener sia per gli eventi <code class="language-plaintext highlighter-rouge">mouseDown</code>, <code class="language-plaintext highlighter-rouge">mouseMove</code> e <code class="language-plaintext highlighter-rouge">mouseUp</code> che per i rispettivi <code class="language-plaintext highlighter-rouge">touchStart</code>, <code class="language-plaintext highlighter-rouge">touchMove</code> e <code class="language-plaintext highlighter-rouge">touchEnd</code>.
+  Le funzioni listener non fanno altro che calcolare le coordinate canvas del punto che è stato cliccato/toccato e comandare il movimento camera (o carrera) opportuno.</li>
+</ol>
+
+<p>In questo modo l’applicazione risulta fruibile anche su dispositivi privi di tastiera e mouse.</p>
+
+<h1 id="illuminazione">Illuminazione</h1>
+<p>Nella scena è presente una sorgente luminosa che, per rendere visibile, ho posizionato nel centro di una sfera: il <em>soleMesh</em>. Tramite il pannello UI è possibile richiedere l’animazione del sole il quale, muovendosi, modificherà l’illuminazione della scena.</p>
+
+<p>Ho applicato il <strong>modello di illuminazione di Phong</strong> secondo cui il colore di un fragment dipende da 3 componenti: <strong>componente ambiente</strong>, <strong>componente di riflessione diffusa</strong> e <strong>componente di riflessione speculare.</strong><br>
+A loro volta, queste dipendono da proprietà della luce, da proprietà del materiale e da alcuni calcoli vettoriali.<br>
+Nel mio codice ho definito delle strutture dati <em>materiali</em> contenenti i coefficienti caratterizzanti il materiale <strong>(Ka, Kd, Ks e shininess)</strong> e le ho associate alle mesh. Per quanto riguarda la luce invece mi sono limitato a definirne tre valori di intensità <strong>(intensità ambiente, diffusa e speculare).</strong><br>
+Grazie ai coefficenti materiali ho potuto definire a piacimento il colore delle mesh non texturate. Non ho mai dovuto quindi salvare o passare dei dati colore per vertici.</p>
+
+<p>Il programma shader tramite cui ho realizzato l’illuminazione è il <em>lightTextureProgram</em> e implementa <strong>l’algoritmo Phong Shading</strong>. Secondo questo algoritmo, il modello di illuminazione viene applicato a livello di Fragment shader, in modo che possa essere applicato su ogni singolo fragment. Rispetto ad altri algoritmi come il Flat Shading o il Gouraud Shading è computazionalmente più costoso ma assicura risultati migliori.</p>
+
+<p>Per evitare che il <em>soleMesh</em> fosse condizionato da luci e ombre come gli altri oggetti in scena ho fatto in modo che il suo colore non fosse influenzato dalla sua posizione ma fosse uniforme. Nel fragment shader infatti, grazie ad uno Uniform controllo se sto renderizzando il sole e, nel caso, evito di fare i calcoli vettoriali determinando il suo colore solo in base ai parametri Ka, Kd e Ks del suo materiale, rispettivamente moltiplicati per Ia, Id e Is.</p>
+
+<p><img src="./Relazione_files/luci.gif" alt="luciGif" align="center" width="100%" margin="auto"></p>
+
+<h1 id="particolarità">Particolarità</h1>
+
+<h3 id="resa-con-ombre">Resa con Ombre</h3>
+<p>Come tecnica di rendering avanzato, attivabile tramite pannello UI, ho implementato la resa con le ombre utilizzando l’algoritmo <strong>Shadow Buffer.</strong><br>
+L’obiettivo alla base di questo algoritmo è molto semplice: per ogni fragment della scena, determinare se questo è in luce oppure in ombra (cioè non in grado di ricevere direttamente la luce) e quindi colorarlo opportunamente.</p>
+
+<p>L’algoritmo richiede che la scena venga resa due volte:</p>
+<ol>
+  <li><strong>Il primo render è fatto dal punto di vista della sorgente luminosa</strong> disegnando su un Frame Buffer alternativo. Serve a determinare quali fragment sono in ombra.</li>
+  <li><strong>Il secondo render è fatto dal punto di vista della camera</strong> disegnando sul Frame Buffer standard (quindi disegnando su schermo). Serve a rendere la scena.</li>
+</ol>
+
+<p>Scendendo maggiormente nei dettagli, nel primo render associamo al programma WebGL un nuovo Frame Buffer composto da 2 Texture, inizialmente vuote, che saranno usate come Color Buffer e Depth Buffer (in questo caso detto Shadow Buffer).<br>
+ Una volta terminato il primo render, lo ShadowBuffer sarà stato riempito con le informazioni di profondità ricercate.<br>
+ Possiamo così effettuare il secondo render e, per ogni fragment, calcolarci la sua profondità Z’ dal punto di vista della sorgente luminosa.<br>
+ Basterà confrontarla con il valore Zs presente nello ShadowBuffer in corrispondenza di quel fragment.</p>
+
+<p>Se <em>Z’&gt;Zs</em> significa che quel pixel si trova “coperto” da un altro oggetto e quindi sarà in ombra. Viceversa si troverà in luce.</p>
+
+<p>Il programma shader che ho utilizzato per la resa con ombre si chiama <em>shadowProgram</em> ed è molto simile al <em>lightTextureProgram</em> usato per la resa di luci e texture. Per calcolare il colore dei fragment in luce il Fragment Shader dello <em>shadowProgram</em> si comporta in modo analogo a quello del <em>lightTextureProgram</em>.<br>
+ La differenza sta nel calcolo del colore dei fragment in ombra, per i quali considera solo la componente luce ambiente (+ quella texture se presente).</p>
+
+<ul>
+  <li>
+    <p><strong>Accorgimenti</strong><br>
+Dal momento che applicare lo Shadow Buffer aumenta inevitabilmente il costo computazionale (devo fare 2 render anzichè 1) una scelta che ho fatto <strong>per migliorare le performance</strong> è stata quella di effettuare il primo render con un programma Shader il più semplice possibile. Dal momento che l’unico output importante del primo render è lo shadow Buffer, esso ignora dettagli quali texture e luci e renderizza curandosi solo delle posizioni dei vertici.
+Inoltre, per evitare che la mesh rappresentante il sole generi ombra, essa è stata esclusa dal primo render.</p>
+  </li>
+  <li>
+    <p><strong>Criticità</strong><br>
+Nella resa con le ombre sono presenti alcuni difetti. Se attiviamo il movimento del sole, oppure ci spostiamo molto con la carrera possiamo notare ombre non coerenti in punti lontani dal centro della scena. Il motivo di ciò è che <strong>lo Shadow Buffer contiene le informazioni ombra solo di una parte di scena</strong>, cioè di quella che si trova nel frustum del primo render. Dal momento che la scena è molto ampia ci saranno quindi porzioni di scena per cui non disponiamo delle informazioni ombra e che quindi non verranno rese correttamente.</p>
+  </li>
+</ul>
+
+<p><img src="./Relazione_files/ombre.gif" alt="ombreGif" align="center" width="100%" margin="auto"></p>
+
+<h3 id="fotocamera-che-segue-la-carrera">Fotocamera che segue la carrera</h3>
+<p>Se pensiamo alla camera da cui guardiamo la scena come se fosse un qualsiasi oggetto, anch’essa avrà una posizione ben definita nella scena, come tutti gli altri oggetti.<br>
+Allora possiamo dire che anche la camera avrà una matrice di trasformazione che ne definisce posizione e orientamento rispetto all’origine dello spazio mondo della scena.
+La <strong>lookAt matrix</strong> è proprio questa matrice di trasformazione.<br>
+Non a caso la lookAt matrix viene usata per portare il <strong>SdR mondo</strong>, con origine O(0,0,0) a coincidere (sia come origine che come orientamento degli assi) con il <strong>SdR osservatore</strong>, avente invece origine in un punto <code class="language-plaintext highlighter-rouge">camera_pos</code> e asse <code class="language-plaintext highlighter-rouge">Ze</code> che punta verso un punto della scena detto <code class="language-plaintext highlighter-rouge">target</code>.<br>
+Cosa succede quindi se <em>sfruttassimo la matrice lookAt come matrice di movimento di una mesh?</em> <strong>Essa definirà la sua posizione e il suo orientamento nello spazio mondo a seconda dei parametri camera_pos, target (e view up vector) specificati.</strong> <br>
+Definendo come <code class="language-plaintext highlighter-rouge">target</code> un punto in movimento, al muoversi del target la matrice lookAt ricalcolerà l’orientamento della mesh in modo che il suo asse Ze (forward versor della mesh) sia diretto sempre verso quel punto.<br>
+Ho applicato questa tecnica per animare la mesh <em>fotocameraMesh</em> in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
+La matrice lookAt viene calcolata sfruttando il metodo <code class="language-plaintext highlighter-rouge">lookAt</code> della libreria m4.js, passando come <code class="language-plaintext highlighter-rouge">target</code> il punto <em>[px,py,pz]</em>, ossia il centro della carrera, e come <code class="language-plaintext highlighter-rouge">pos</code> un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione. Come view up vector invece ho passato il vettore standard [0,1,0].</p>
+
+<p><img src="./Relazione_files/fotocamera.gif" alt="fotocameraGif" align="center" width="100%" margin="auto"></p>
+
+<h1 id="migliorie-future">Migliorie future</h1>
+<p>Alcune migliorie che potrei apportare all’applicazione sono quelle di curare maggiormente la modalità gara ad esempio aggiungendo un controllo delle collisioni.<br>
+Potrei aggiungere poi nuove funzionalità. Una che mi viene in mente è quella di aggiungere una canvas ulteriore in cui fare il rendering della scena dal punto di vista della fotocamera, e magari dare la possibilità all’utente di <em>scattare una foto</em> della carrera congelando l’immagine. L’effetto si potrebbe ottenere facilmente smettendo di renderizzare ed evitando di pulire la canvas.</p>
+
+
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="https://github.com/LorenzoPiazza/Carrera_3DWebApp">Carrera_3DWebApp</a> is maintained by <a href="https://github.com/LorenzoPiazza">LorenzoPiazza</a>.</span>
+        
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com/">GitHub Pages</a>.</span>
+      </footer>
+    </section>
+
+    
+  
+
+</body></html>
