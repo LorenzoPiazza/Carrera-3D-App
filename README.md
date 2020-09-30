@@ -145,7 +145,7 @@ Per evitare che il *soleMesh* fosse condizionato da luci e ombre come gli altri 
 # Particolarità
 
 ### Resa con Ombre
-![fotocameraGif](/docs/img/ombre.gif){:align="center" width="110%"}
+![ombreGif](/docs/img/ombre.gif){:align="center" width="110%"}
 Come tecnica di rendering avanzato, attivabile tramite pannello UI, ho implementato la resa con le ombre utilizzando l'algoritmo **Shadow Buffer.**  
 L'obiettivo alla base di questo algoritmo è molto semplice: per ogni fragment della scena, determinare se questo è in luce oppure in ombra (cioè non in grado di ricevere direttamente la luce) e quindi colorarlo opportunamente. 
 L'algoritmo richiede che la scena venga resa due volte:
