@@ -34,7 +34,7 @@ In modalità gara poi, è possibile simulare il cosiddetto **lancio della carrer
   - pilotare la carrera: tasti `AWSD` da tastiera oppure `touchCanvas1` in basso a sinistra.
   - lanciare la carrera: tasto `SPACEBAR` oppure `click/tap` sulla Canvas principale.
 
-È possibile infine, tramite il pannello UI, settare alcuni parametri addizionali come la **sensibilità di movimento della camera** e l’attivazione/disattivazione di tecniche di resa avanzate quali le **ombre**.
+È possibile infine, tramite il pannello UI, settare alcuni parametri addizionali come la **sensibilità di movimento della camera**, richiedere il **movimento del sole** e l’attivazione/disattivazione di tecniche di resa avanzate quali le **ombre**.
 
 ### Struttura del progetto
 - /project/
@@ -138,6 +138,9 @@ Per rendere possibile questo sono stati necessari due accorgimenti:
 In questo modo l'applicazione risulta fruibile anche su dispositivi privi di tastiera e mouse.
 
 # Illuminazione
+Nella scena è presente una sorgente luminosa che, per renderla visibile, ho posizionato nel centro di una sfera: il *soleMesh*.  
+Come modello di illuminazione ho applicato il **modello di Phong** implementando l'algoritmo di **Phong Shading**.  
+Per evitare che il *soleMesh* fosse condizionato da luci e ombre come gli altri oggetti in scena ho fatto in modo che il suo colore non fosse influenzato dalla sua posizione ma fosse uniforme. 
 
 # Particolarità
 
@@ -145,15 +148,20 @@ In questo modo l'applicazione risulta fruibile anche su dispositivi privi di tas
 Come tecnica di rendering avanzato, attivabile tramite pannello UI, ho implementato la resa con le ombre utilizzando l'algoritmo **Shadow Buffer.**  
 L'obiettivo alla base di questo algoritmo è molto semplice: per ogni fragment della scena, determinare se questo è in luce oppure in ombra (cioè non in grado di ricevere direttamente la luce) e quindi colorarlo opportunamente. 
 L'algoritmo richiede che la scena venga resa due volte:
-  1. Il primo render è fatto dal punto di vista della sorgente luminosa disegnando su un Frame Buffer alternativo. Serve a determinare quali fragment sono in ombra. 
-  2. Il secondo render è fatto dal punto di vista della camera disegnando sul Frame Buffer standard (quindi disegnando su schermo). Serve a rendere la scena.
+  1. **Il primo render è fatto dal punto di vista della sorgente luminosa** disegnando su un Frame Buffer alternativo. Serve a determinare quali fragment sono in ombra. 
+  2. **Il secondo render è fatto dal punto di vista della camera** disegnando sul Frame Buffer standard (quindi disegnando su schermo). Serve a rendere la scena.
   
  Scendendo maggiormente nei dettagli, nel primo render associamo al programma WebGL un nuovo Frame Buffer composto da 2 Texture, inizialmente vuote, che saranno usate come Color Buffer e Depth Buffer (in questo caso detto Shadow Buffer).  
- Una volta terminato il primo render, lo ShadowBuffer sarà stato riempito con le informazioni di profondità ricercate. Possiamo così effettuare il secondo render e, per ogni fragment, calcolarci la sua profondità Z' dal punto di vista della sorgente luminosa. Basterà confrontarla con il valore Zs presente nello ShadowBuffer in corrispondenza di quel fragment. Se Z' > Zs significa che quel pixel si trova "coperto" da un altro oggetto e quindi sarà in ombra. Viceversa si troverà in luce.
+ Una volta terminato il primo render, lo ShadowBuffer sarà stato riempito con le informazioni di profondità ricercate. Possiamo così effettuare il secondo render e, per ogni fragment, calcolarci la sua profondità Z' dal punto di vista della sorgente luminosa. Basterà confrontarla con il valore Zs presente nello ShadowBuffer in corrispondenza di quel fragment. Se *Z'>Zs* significa che quel pixel si trova "coperto" da un altro oggetto e quindi sarà in ombra. Viceversa si troverà in luce.
  
- Il programma shader che ho utilizzato per la resa con ombre si chiama *shadowProgram* ed è molto simile al *lightTextureProgram*. Il Fragment Shader del primo si comporta in modo analogo a quello del secondo per calcolare il colore dei fragment in luce mentre calcola solo la componente luce ambiente (+texture se presente) dei fragment in ombra.
+ Il programma shader che ho utilizzato per la resa con ombre si chiama *shadowProgram* ed è molto simile al *lightTextureProgram*. Il Fragment Shader del primo si comporta in modo analogo a quello del secondo per calcolare il colore dei fragment in luce mentre calcola solo la componente luce ambiente (+ quella texture se presente) dei fragment in ombra.
  
+ ###### Accorgimenti
  Dal momento che applicare lo Shadow Buffer aumenta inevitabilmente il costo computazionale (devo fare 2 render anzichè 1) una scelta che ho fatto **per migliorare le performance** è stata quella di effettuare il primo render con un programma Shader il più semplice possibile, che ho chiamato *standardProgram*. Dal momento che l'unico output importante del primo render è lo shadow Buffer, esso ignora dettagli quali texture e luci e renderizza curandosi solo delle posizioni dei vertici.
+ Per evitare che anche la mesh rappresentante il sole generi ombra, essa è stata esclusa dal primo render.
+ 
+  ###### Criticità
+  Nella resa con le ombre sono presenti alcuni difetti. Se attiviamo il movimento del sole, oppure ci spostiamo molto con la carrera possiamo notare ombre non coerenti in punti lontani dal centro della scena. Il motivo di ciò è che **lo Shadow Buffer contiene le informazioni ombra solo di una parte di scena**, cioè di quella che si trova nel frustum del primo render. Dal momento che la scena è molto ampia ci saranno quindi porzioni di scena per cui non disponiamo delle informazioni ombra e che quindi non verranno rese correttamente.
  
 
 ### Fotocamera che segue la carrera
@@ -166,7 +174,7 @@ Definendo come `target` un punto in movimento, al muoversi del target la matrice
 Ho applicato questa tecnica per animare la mesh *fotocameraMesh* in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
 La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione. Come view up vector invece ho passato il vettore standard [0,1,0].
 
-![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="110%"}
+![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="150%"}
 
 
 ### Resize della canvas
