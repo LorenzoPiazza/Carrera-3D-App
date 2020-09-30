@@ -97,10 +97,13 @@ Blender è stato molto utile anche per applicare le texture alle mie mesh define
 Parlerò di Texture nella prossima sezione.
 
 ### Texture
-Per migliorare l'aspetto della scena ho texturato la maggior parte delle mesh presenti USANDO UN TECNICA DI TEXTURE IMAGE 2D ???
-Il procedimento che ho seguito è stato:
+Per migliorare l'aspetto della scena ho texturato la maggior parte delle mesh presenti usando un **Texture Mapping 2D.** Ho texturato la carrera, le ruote, la fotocamera, i pannelli pubblicitari e la strada. Tutte le immagini texture sono state ridimensionate ad una size *2^n* x *2^n*.  
+Questo mi ha permesso di applicare la tecnica del **Mip Mapping** che si è rivelata molto utile nella mia applicazione: in modalità scena, infatti, l'utente può allontanarsi o avvicinarsi ad un oggetto texturato. Questo significa che la texture potrà essere resa a schermo con differenti risoluzioni (sempre minori man mano che mi allontano con la camera). Il mipmap genera una *mipmap chain*, ossia per ogni texture genera e salva n-1 texture, ciascuna 1/4 di risoluzione della precedente.  
+Così facendo, in fase di render WebGL potrà scegliere dalla *mipmap chain* la texture che più si adatta alla risoluzione delle facce da texturare e, se necessario, applicherà la procedura di minification a partire da quella e non dalla texture di risoluzione massima. Questo comporta un aumento delle performance (poichè avrò minification più snelle) e un aumento della qualità delle immagine rese.
+
+Il procedimento che ho seguito per applicare il texture Mapping 2D è stato il seguente:
 1. In fase di init, **caricamento delle immagini e creazione della texture:**  
-  per svincolarmi dal tempo di caricamento delle immagini e iniziare quanto prima il render della scena, all'inizio definisco e utilizzo una texture di default di colore Blu. Poi, nel momento in cui l'immagine voluta è stata caricata (`image.onload`), la sovrascrivo a quella di default.
+  per svincolarmi dal tempo di caricamento delle immagini e iniziare quanto prima il render della scena, all'inizio definisco e utilizzo una texture di default di colore Blu. Poi, nel momento in cui l'immagine voluta è stata caricata (`image.onload`), applico il Mip Mapping e la sovrascrivo a quella di default, appl
 2. Sempre in fase di init, **load delle mesh passando la texture corrispondente.**
 3. In fase di disegno della mesh, **controllo se per la mesh corrente è presente una texture:**  
   in caso affermativo, creo l'associazione tra attribute e il buffer con le coordinate texture, attivo una Texture Unit (
@@ -109,7 +112,8 @@ Il procedimento che ho seguito è stato:
 Dal momento che il colore di un oggetto in scena è condizionato sia dalla **texture** che dall'**illuminazione**, ho realizzato un unico programma Shader chiamato *lightTextureProgram* e ho definito nel suo fragment shader uno Uniform `mode`.  
 Descriverò più ampiamente il programma *lightTextureProgram* nella sezione [Illuminazione](#Illuminazione). Per ora mi limito a dire che grazie a `mode` mi è stato possibile usare lo stesso programma sia per il render di oggetti texturati che non texturati, distinguendo il calcolo del colore dei primi, che sarà dato da luce + texture, dal calcolo del colore dei secondi, definito invece solo dalla luce.
 
-MIPMAP  ???
+<img align="center" style="float:left" width="45%" src="/docs/img/volpeTexture1.png"> <img align="center" style="float:right" width="45%" src="/docs/img/volpeTexture2.png">
+
 
 # Interazione Utente
 
