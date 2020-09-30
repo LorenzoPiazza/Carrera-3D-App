@@ -112,7 +112,7 @@ Il procedimento che ho seguito per applicare il texture Mapping 2D è stato il s
 Dal momento che il colore di un oggetto in scena è condizionato sia dalla **texture** che dall'**illuminazione**, ho realizzato un unico programma Shader chiamato *lightTextureProgram* e ho definito nel suo fragment shader uno Uniform `mode`.  
 Descriverò più ampiamente il programma *lightTextureProgram* nella sezione [Illuminazione](#Illuminazione). Per ora mi limito a dire che grazie a `mode` mi è stato possibile usare lo stesso programma sia per il render di oggetti texturati che non texturati, distinguendo il calcolo del colore dei primi, che sarà dato da luce + texture, dal calcolo del colore dei secondi, definito invece solo dalla luce.
 
-![texture1](/docs/img/volpeTexture1.png){:float="left" width="45%"} ![texture](/docs/img/volpeTexture2.png){:float="right" width="45%"}
+![texture1](/docs/img/volpeTexture1.png){:float="left" width="45%" height="80%"} ![texture](/docs/img/volpeTexture2.png){:float="right" width="45%"}
 
 
 # Interazione Utente
