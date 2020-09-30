@@ -91,7 +91,7 @@ Blender si è poi rivelato fondamentale nella gestione della mesh Carrera. In or
 In questo modo mi è stato possibile definire movimenti diversi a seconda dell’esigenza della singola mesh. Le ruote, ad esempio, hanno necessità di ruotare intorno all’asse X, la carrozzeria invece no.  
 La geometria iniziale delle ruote e anche della carrozzeria è stata definita con centro nell’origine degli assi in modo da poter apportare rotazioni opportune. Questo mi ha permesso di **alleggerire le operazioni di render** poichè avrei comunque dovuto traslarle nel centro degli assi e lo avrei fatto a livello di codice.  
 
-![carreraNoRuote](/docs/img/carreraNoRuote.png){:float="left" width="45%"} ![ruota](/docs/img/ruota.png){:align="center" float="right" width="45%"}
+![carreraNoRuote](/docs/img/carreraNoRuote.png){:align="center" float="left" width="45%"} ![ruota](/docs/img/ruota.png){:align="center" float="right" width="45%"}
 
 Blender è stato molto utile anche per applicare le texture alle mie mesh definendo il mapping UV ed esportando le coordinate texture nel file .obj.  
 Parlerò di Texture nella prossima sezione.
@@ -142,6 +142,19 @@ In questo modo l'applicazione risulta fruibile anche su dispositivi privi di tas
 # Particolarità
 
 ### Resa con Ombre
+Come tecnica di rendering avanzato, attivabile tramite pannello UI, ho implementato la resa con le ombre utilizzando l'algoritmo **Shadow Buffer.**  
+L'obiettivo alla base di questo algoritmo è molto semplice: per ogni fragment della scena, determinare se questo è in luce oppure in ombra (cioè non in grado di ricevere direttamente la luce) e quindi colorarlo opportunamente. 
+L'algoritmo richiede che la scena venga resa due volte:
+  1. Il primo render è fatto dal punto di vista della sorgente luminosa disegnando su un Frame Buffer alternativo. Serve a determinare quali fragment sono in ombra. 
+  2. Il secondo render è fatto dal punto di vista della camera disegnando sul Frame Buffer standard (quindi disegnando su schermo). Serve a rendere la scena.
+  
+ Scendendo maggiormente nei dettagli, nel primo render associamo al programma WebGL un nuovo Frame Buffer composto da 2 Texture, inizialmente vuote, che saranno usate come Color Buffer e Depth Buffer (in questo caso detto Shadow Buffer).  
+ Una volta terminato il primo render, lo ShadowBuffer sarà stato riempito con le informazioni di profondità ricercate. Possiamo così effettuare il secondo render e, per ogni fragment, calcolarci la sua profondità Z' dal punto di vista della sorgente luminosa. Basterà confrontarla con il valore Zs presente nello ShadowBuffer in corrispondenza di quel fragment. Se Z' > Zs significa che quel pixel si trova "coperto" da un altro oggetto e quindi sarà in ombra. Viceversa si troverà in luce.
+ 
+ Il programma shader che ho utilizzato per la resa con ombre si chiama *shadowProgram* ed è molto simile al *lightTextureProgram*. Il Fragment Shader del primo si comporta in modo analogo a quello del secondo per calcolare il colore dei fragment in luce mentre calcola solo la componente luce ambiente (+texture se presente) dei fragment in ombra.
+ 
+ Dal momento che applicare lo Shadow Buffer aumenta inevitabilmente il costo computazionale (devo fare 2 render anzichè 1) una scelta che ho fatto **per migliorare le performance** è stata quella di effettuare il primo render con un programma Shader il più semplice possibile, che ho chiamato *standardProgram*. Dal momento che l'unico output importante del primo render è lo shadow Buffer, esso ignora dettagli quali texture e luci e renderizza curandosi solo delle posizioni dei vertici.
+ 
 
 ### Fotocamera che segue la carrera
 Se pensiamo alla camera da cui guardiamo la scena come se fosse un qualsiasi oggetto, anch’essa avrà una posizione ben definita nella scena, come tutti gli altri oggetti.  
@@ -153,7 +166,7 @@ Definendo come `target` un punto in movimento, al muoversi del target la matrice
 Ho applicato questa tecnica per animare la mesh *fotocameraMesh* in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
 La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione. Come view up vector invece ho passato il vettore standard [0,1,0].
 
-<img style="margin-left: auto; margin-right: auto; width:120%;" src="/docs/img/fotocamera.gif">
+![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="110%"}
 
 
 ### Resize della canvas
