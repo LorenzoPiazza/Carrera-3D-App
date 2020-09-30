@@ -79,7 +79,7 @@ Essa sfrutta il modulo **JQuery Ajax** per accedere in modo asincrono alla risor
   **[3]** Una volta completati gli import mi ritrovo quindi con un array di oggetti Mesh. Questo array è utile nella funzione di render dove, per ogni mesh in esso contenuta, invoco l'opportuna funzione `drawMesh` o una sua variante.  
 Le funzioni relative all’importazione e disegno della mesh le ho raggruppate nel file `obj-mesh.js`, eccezion fatta per la funzione readOBJ che si trova, come già puntualizzato precedente, nel file `glm_light_plus.js`.
 
-### Utilizzo di Blender <img align="left" width="150" height="150" src="/docs/img/blender-logo-vector.png">
+### Utilizzo di Blender <img align="right" width="250" height="150" src="/docs/img/blender-logo-vector.png">
 Quasi tutte le mesh che ho recuperato online si presentavano in posizioni, dimensioni e orientamenti diversi da quelli che desideravo.  
 Per ridurre le operazioni di trasformazione nel codice della mia applicazione ho importato le mesh originali sul software Blender e ne ho definito la **geometria iniziale** (centrandole nell’origine degli assi, orientandole nel verso desiderato con delle rotazioni, rimpicciolendole…).
 Per alcune mesh ho sfruttato Blender anche in fase di esportazione del nuovo file .obj, in modo da **triangolare le facce** che in origine si presentavano quadrate. Questo era necessario in quanto WebGL (e più in generale molti algoritmi di CG) lavorano con mesh a faccette piane triangolari.    
@@ -89,9 +89,9 @@ Blender si è poi rivelato fondamentale nella gestione della mesh Carrera. In or
 - ruota Destra
 - ruota Sinistra
 In questo modo mi è stato possibile definire movimenti diversi a seconda dell’esigenza della singola mesh. Le ruote, ad esempio, hanno necessità di ruotare intorno all’asse X, la carrozzeria invece no.  
-La geometria iniziale delle ruote e anche della carrozzeria è stata definita con centro nell’origine degli assi in modo da poter apportare rotazioni opportune. Questo mi ha permesso di **alleggerire le operazioni di render** poichè avrei comunque dovuto traslarle nel centro degli assi e lo avrei fatto a livello di codice.
+La geometria iniziale delle ruote e anche della carrozzeria è stata definita con centro nell’origine degli assi in modo da poter apportare rotazioni opportune. Questo mi ha permesso di **alleggerire le operazioni di render** poichè avrei comunque dovuto traslarle nel centro degli assi e lo avrei fatto a livello di codice.  
 
-![carreraNoRuote](/docs/img/carreraNoRuote.png | width=50%) ![ruota](/docs/img/ruota.png | width=50%)
+<img align="center" style="float:left" width="45%" src="/docs/img/carreraNoRuote.png"> <img align="center" style="float:right" width="45%" src="/docs/img/ruota.png">
 
 Blender è stato molto utile anche per applicare le texture alle mie mesh definendo il mapping UV ed esportando le coordinate texture nel file .obj.  
 Parlerò di Texture nella prossima sezione.
@@ -149,7 +149,7 @@ Definendo come `target` un punto in movimento, al muoversi del target la matrice
 Ho applicato questa tecnica per animare la mesh *fotocameraMesh* in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
 La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione. Come view up vector invece ho passato il vettore standard [0,1,0].
 
-![FotocameraGif](/docs/img/fotocamera.gif)
+<img style="margin-left: auto; margin-right: auto; width:120%;" src="/docs/img/fotocamera.gif">
 
 
 ### Resize della canvas
