@@ -97,6 +97,10 @@ Parlerò di Texture nella prossima sezione.
 # Interazione Utente
 
 ### Movimento della Camera
+L’applicazione permette all’utente di navigare liberamente all’interno della scena muovendosi con la camera.  
+A questo fine ho raggruppato tutte le funzioni di movimento e rotazione camera nel file `camera-utils.js`. Esse agiscono modificando le variabili globali camera_pos, target e viewUp, le quali poi saranno usate all'interno della funzione di render per calcolare la matrice di vista. Per evitare calcoli superflui ho fatto in modo che la matrice di vista venga ricalcolata solo se necessario e questo controllo viene fatto sfruttando una variabile booleana *viewParamsChanged* che tiene traccia della modifica dei parametri di vista. Questo mi ha permesso di ottenere **una funzione di render più efficiente.**  
+È possibile effettuare dei movimenti traslatori (up, down, left e right) in cui viene traslata sia la posizione della camera che quella del target oppure ottenere un effetto di rotazione della visuale (rotateLeft/Right e rotateDown/Up) ruotando rispettivamente attorno agli assi Ye e Xe della camera il target e lasciando fissa la posizione della camera.  
+E' stato necessario introdurre una funzione realign() che permettesse di ricalcolare le giuste direzioni degli assi Xe - Ye - Ze in seguito alle rotazioni della camera. Il loro ricalcolo permette di operare delle traslazioni che siano sempre coerenti con l'orientamento attuale della camera, dando all'utente una sensazione di naturalezza nel movimento.
 
 
 ### Movimento della carrera
@@ -115,11 +119,11 @@ Parlerò di Texture nella prossima sezione.
 Se pensiamo alla camera da cui guardiamo la scena come se fosse un qualsiasi oggetto, anch’essa avrà una posizione ben definita nella scena, come tutti gli altri oggetti.  
 Allora possiamo dire che anche la camera avrà una matrice di trasformazione che ne definisce posizione e orientamento rispetto all'origine dello spazio mondo della scena.
 La **lookAt matrix** è proprio questa matrice di trasformazione.  
-Non a caso la lookAt matrix viene usata per portare il **SdR mondo**, con origine in un punto detto `target`, a coincidere (sia come posizione che come orientamento degli assi) con il **SdR osservatore**, avente invece origine in un punto `camera_pos` e asse `Ze` che punta verso `target`.  
-Cosa succede quindi se ***sfruttiamo la matrice lookAt come matrice di movimento di una mesh?*** Essa definirà la sua posizione e il suo orientamento nello spazio mondo a seconda dei parametri camera_pos, target (e view up vector) specificati.   
-Definendo come `target` un punto in movimento, al muoversi del target la matrice lookAt ricalcolerà l’orientamento della mesh in modo che l’asse Ze (forward versor della mesh) punti sempre verso l’oggetto.  
+Non a caso la lookAt matrix viene usata per portare il **SdR mondo**, con origine O(0,0,0) a coincidere (sia come origine che come orientamento degli assi) con il **SdR osservatore**, avente invece origine in un punto `camera_pos` e asse `Ze` che punta verso un punto della scena detto `target`.  
+Cosa succede quindi se *sfruttassimo la matrice lookAt come matrice di movimento di una mesh?* **Essa definirà la sua posizione e il suo orientamento nello spazio mondo a seconda dei parametri camera_pos, target (e view up vector) specificati.**   
+Definendo come `target` un punto in movimento, al muoversi del target la matrice lookAt ricalcolerà l’orientamento della mesh in modo che il suo asse Ze (forward versor della mesh) sia diretto sempre verso quel punto.  
 Ho applicato questa tecnica per animare la mesh *fotocameraMesh* in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
-La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione.
+La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione. Come view up vector invece ho passato il vettore standard [0,1,0].
 
 ![FotocameraGif](/docs/img/fotocamera.gif)
 
