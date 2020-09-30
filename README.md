@@ -145,7 +145,7 @@ Per evitare che il *soleMesh* fosse condizionato da luci e ombre come gli altri 
 # Particolarità
 
 ### Resa con Ombre
-![ombreGif](/docs/img/ombre.gif){:align="center" width="110%"}
+![ombreGif](/docs/img/ombre.gif){:align="center" width="80%"}
 Come tecnica di rendering avanzato, attivabile tramite pannello UI, ho implementato la resa con le ombre utilizzando l'algoritmo **Shadow Buffer.**  
 L'obiettivo alla base di questo algoritmo è molto semplice: per ogni fragment della scena, determinare se questo è in luce oppure in ombra (cioè non in grado di ricevere direttamente la luce) e quindi colorarlo opportunamente. 
 L'algoritmo richiede che la scena venga resa due volte:
@@ -175,7 +175,11 @@ Definendo come `target` un punto in movimento, al muoversi del target la matrice
 Ho applicato questa tecnica per animare la mesh *fotocameraMesh* in modo da simulare un fotografo che segue sempre la carrera in tutti i suoi movimenti.
 La matrice lookAt viene calcolata sfruttando il metodo `lookAt` della libreria m4.js, passando come `target` il punto *[px,py,pz]*, ossia il centro della carrera, e come `pos` un punto fisso nella scena in modo che la mesh cambi solo il proprio orientamento ma non la posizione. Come view up vector invece ho passato il vettore standard [0,1,0].
 
-![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="110%"}
+![fotocameraGif](/docs/img/fotocamera.gif){:align="center" width="80%"}
 
 
 ### Resize della canvas
+
+# Migliorie future
+Alcune migliorie che potrei aggiungere all'applicazione sono quelle di curare maggiormente la modalità gara ad esempio aggiungendo un controllo delle collisioni.  
+Potrei aggiungere poi nuove funzionalità. Una che mi viene in mente è quella di aggiungere una canvas ulteriore in cui fare il rendering della scena dal punto di vista della fotocamera, e magari dare la possibilità all'utente di *scattare una foto* della carrera congelando l'immagine. L'effetto si potrebbe ottenere facilmente smettendo di renderizzare ed evitando di pulire la canvas.
