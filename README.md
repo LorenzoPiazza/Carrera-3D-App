@@ -21,13 +21,18 @@ Una volta avviata, l’applicazione si presenta composta da quattro elementi pri
 
 L’applicazione presenta due differenti modalità d’uso, che possono essere scelte mediante il pannello UI in alto a sinistra.
 - **Modalità scena:** In questa modalità l’utente è libero di navigare la scena per osservarne la composizione e i dettagli.
-La navigazione nella scena è realizzata mediante opportuni movimenti della camera. Per maggiori dettagli si veda la sezione MOVIMENTO CAMERA.
-La camera può essere spostata avanti/indietro oppure a destra/sinistra (tasti AWSD da tastiera o touchCanvas1 in basso a sinistra) in alto/basso
+La navigazione nella scena è realizzata mediante opportuni movimenti della camera. Per maggiori dettagli si veda la sezione Movimento della Camera.
+La camera può essere:
+  - spostata avanti/indietro/destra/sinistra: tasti `AWSD` da tastiera oppure `touchCanvas1` in basso a sinistra.
+  - spostata in alto/basso: tasti `UP/DOWN ARROW` da tastiera.
+  - ruotata: tasti `LEFT/RIGHT ARROW + NUM8/NUM5` da tastiera oppure `touchCanvas2` in basso a destra.
 
 - **Modalità gara:** In questa modalità l’utente può pilotare la carrera e muoverla all’interno della scena. 
 Sono disponibili due differenti inquadrature: **visuale spingitore** e **visuale dall’alto** che settano diverse posizioni iniziali della camera.
 In modalità gara poi, è possibile simulare il cosiddetto **lancio della carrera**, ossia il gesto compiuto dallo spingitore per permettere il cambio della staffettista. Viene quindi realizzato un incremento di accelerazione cui segue una progressiva decelerazione della macchina. In tutto questo la posizione della camera che gradualmente si ferma, proprio come lo spingitore che smette di correre avendo terminato la corsa.
-È possibile pilotare la macchina usando i tasti da tastiera ASWD, oppure utilizzando con il mouse (o con il dito per i dispositivi touch) la touchCanvas1 in basso a sinistra. Il lancio della macchinina può essere comandato premendo la barra spaziatrice o cliccando con il mouse (o con il dito) sulla Canvas principale.
+È possibile:
+  - pilotare la carrera: tasti `AWSD` da tastiera oppure `touchCanvas1` in basso a sinistra.
+  - lanciare la carrera: tasto `SPACEBAR` oppure `click/tap` sulla Canvas principale.
 
 È possibile infine, tramite il pannello UI, settare alcuni parametri addizionali come la **sensibilità di movimento della camera** e l’attivazione/disattivazione di tecniche di resa avanzate quali le **ombre**.
 
@@ -98,8 +103,9 @@ Parlerò di Texture nella prossima sezione.
 
 ### Movimento della Camera
 L’applicazione permette all’utente di navigare liberamente all’interno della scena muovendosi con la camera.  
-A questo fine ho raggruppato tutte le funzioni di movimento e rotazione camera nel file `camera-utils.js`. Esse agiscono modificando le variabili globali camera_pos, target e viewUp, le quali poi saranno usate all'interno della funzione di render per calcolare la matrice di vista. Per evitare calcoli superflui ho fatto in modo che la matrice di vista venga ricalcolata solo se necessario e questo controllo viene fatto sfruttando una variabile booleana *viewParamsChanged* che tiene traccia della modifica dei parametri di vista. Questo mi ha permesso di ottenere **una funzione di render più efficiente.**  
-È possibile effettuare dei movimenti traslatori (up, down, left e right) in cui viene traslata sia la posizione della camera che quella del target oppure ottenere un effetto di rotazione della visuale (rotateLeft/Right e rotateDown/Up) ruotando rispettivamente attorno agli assi Ye e Xe della camera il target e lasciando fissa la posizione della camera.  
+A questo fine ho raggruppato tutte le funzioni di movimento e rotazione camera nel file `camera-utils.js`. Esse agiscono modificando le variabili globali **camera_pos**, **target** e **viewUp**, le quali poi saranno usate all'interno della funzione di render per calcolare la matrice di vista.  
+Per evitare calcoli superflui ho fatto in modo che la matrice di vista venga ricalcolata solo se necessario e questo controllo viene fatto sfruttando una variabile booleana *viewParamsChanged* che tiene traccia della modifica dei parametri di vista. Questo mi ha permesso di ottenere **una funzione di render più efficiente.**  
+È possibile effettuare dei movimenti traslatori **(up, down, left e right)** in cui viene traslata sia la posizione della camera che quella del target oppure ottenere un effetto di rotazione della visuale **(rotateLeft/Right e rotateDown/Up)** ruotando rispettivamente attorno agli assi Ye e Xe della camera il target e lasciando fissa la posizione della camera.  
 E' stato necessario introdurre una funzione realign() che permettesse di ricalcolare le giuste direzioni degli assi Xe - Ye - Ze in seguito alle rotazioni della camera. Il loro ricalcolo permette di operare delle traslazioni che siano sempre coerenti con l'orientamento attuale della camera, dando all'utente una sensazione di naturalezza nel movimento.
 
 
