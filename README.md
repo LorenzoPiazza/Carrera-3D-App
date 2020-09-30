@@ -115,7 +115,11 @@ E' stato necessario introdurre una funzione realign() che permettesse di ricalco
 ### Portabilità su dispositivi touch screen
 In un’ottica di portabilità dell’applicazione e di compatibilità con dispositivi touchscreen le varie interazioni utente sono possibili sia tramite tastiera e mouse che tramite touch dello schermo.  
 Per rendere possibile questo sono stati necessari due accorgimenti:
-1. Sfruttando il contesto Canvas 2D e la sua funzione `drawImage` ho realizzato le due touchCanvas illustrate nella sezione [Introduzione](#avvio
+1. Sfruttando il contesto Canvas 2D e la sua funzione `drawImage` ho realizzato le due touchCanvas illustrate nella sezione [Introduzione](#avvio-dellapplicazione-e-suo-utilizzo).
+2. Ho associato alle suddette canvas delle funzioni listener sia per gli eventi `mouseDown`, `mouseMove` e `mouseUp` che per i rispettivi `touchStart`, `touchMove` e `touchEnd`.
+  Le funzioni listener non fanno altro che calcolare le coordinate canvas del punto che è stato cliccato/toccato e comandare il movimento camera (o carrera) opportuno.  
+
+In questo modo l'applicazione risulta fruibile anche da dispositivi privi di tastiera e mouse.
 
 # Illuminazione
 
