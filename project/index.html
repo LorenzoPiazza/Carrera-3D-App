@@ -56,6 +56,10 @@
 			<input type="checkbox" id="shadowCheckBox" name="shadow" value="shadow" onclick="activeShadow(this)">
 			<label for="shadowCheckBox">Render con ombre</label>
 		</div>
+		<div id="lightMoveOpt">
+			<input type="checkbox" id="lightCheckBox" name="light" value="light" onclick="activeLightMovement(this)">
+			<label for="lightCheckBox">Movimento del sole</label>
+		</div>
 
 </div>
 	
@@ -85,6 +89,9 @@ var zmin = 1;
 var zmax = 200;
 var fov = 45;
 
+var viewParamsChanged = false;		//Variabile che indica la necessità di ricalcolare la matrice di vista.
+var newAspect;						//Variabile per controllare la la necessità di ricalcolare la matrice di proiezione.
+
 //Matrici
 var mo_matrix, proj_matrix, view_matrix, lightMmatrix;
 
@@ -95,8 +102,9 @@ var fotocameraTexture, highwayLateralSignTexture, highwayCentralSignTexture, car
 var fotocameraMeshPos = [-4, 1.5, -7];
 
 //Variabili relative alla luce
-var initial_LightPos = [17, 15, 17];
+var initial_LightPos = [19, 15, 19];
 var lightPos = initial_LightPos;
+var lightMoveOpt = false;
 var ambientLight = 0.8;
 var diffuseLight = 1;
 var specularLight = 0.85;
@@ -126,7 +134,7 @@ var rubyMaterial = {
 var sunMaterial = {
 	name: "sunMaterial",
 	ka: [1, 1, 0],
-	kd: [0.9, 0.9, 0],
+	kd: [1, 1, 0.4],
 	ks: [1, 1, 0],
 	shininessVal: 1
 };	
@@ -175,10 +183,11 @@ function loadImageAndCreateTexture(imageSrc){
 		  if (isPowerOf2(textureImage.width) && isPowerOf2(textureImage.height)) {
 			 // Yes, it's a power of 2. Generate mips.
 			 gl.generateMipmap(gl.TEXTURE_2D);
+			 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST	);
 		  } else {
 			 // No, it's not a power of 2. Turn off mips and set wrapping to clamp to edge
-			 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);	//tell WebGL to not repeat the texture in S direction
+			 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);	//tell WebGL to not repeat the texture in T direction
 			 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 			 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		  } 
@@ -263,7 +272,7 @@ function init(){
 	loadMeshObj(1, ["lateralSignTextured"], "./data/lateralSignTextured.obj", [highwaySign_mo_matrix], defaultMaterial, highwayLateralSignTexture);
 	
 	//Carico la mesh Sole
-	var sun_mo_matrix = m4.scale(m4.translate(mo_matrix, initial_LightPos[0]+2, initial_LightPos[1]+2, initial_LightPos[2]+2), 3, 3, 3);
+	var sun_mo_matrix = m4.translate(mo_matrix, initial_LightPos[0], initial_LightPos[1], initial_LightPos[2]);
 	loadMeshObj(1, ["soleMesh"], "./data/sun.obj", [sun_mo_matrix], sunMaterial, null);
 	
 	//Carico la mesh strada
@@ -279,7 +288,11 @@ function init(){
 		shadow_frame_buffer = _createFrameBufferObject(gl, 2048, 2048);
 	} else{
 		document.getElementById("shadowCheckBox").disabled = true;
-	}		
+	}
+	/******** Inizializzo l'aspect e la projection matrix ********/	
+	aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax);
+		
 }
 
 function degToRad(d) {
@@ -287,41 +300,52 @@ function degToRad(d) {
 }
 
 function moveCamera(){
+	viewParamsChanged = false;
 		if (cameraInteraction.moveForward) {
 			moveForwardCameraPos(0.01+cameraSensibility);
 			moveForwardTarget(0.01+cameraSensibility);
+			viewParamsChanged = true;
 		}
 		if (cameraInteraction.moveBackward) {
 			moveForwardCameraPos(-0.01-cameraSensibility);
 			moveForwardTarget(-0.01-cameraSensibility);
+			viewParamsChanged = true;
 		}
 		if (cameraInteraction.moveLeft) {
 			moveRightCameraPos(-0.01-cameraSensibility);
 			moveRightTarget(-0.01-cameraSensibility);
+			viewParamsChanged = true;
 		}
 		if (cameraInteraction.moveRight) {
 			moveRightCameraPos(0.01+cameraSensibility);
 			moveRightTarget(0.01+cameraSensibility);
+			viewParamsChanged = true;
 		}
 		if (cameraInteraction.rotateRight){
 			rotateTargetRight(degToRad(-5.5*cameraSensibility-0.5));
+			viewParamsChanged = true;
 		}
 		if (cameraInteraction.rotateLeft){
 			rotateTargetRight(degToRad(5.5*cameraSensibility+0.5));
+			viewParamsChanged = true;
 		}
 		if (cameraInteraction.moveUp){
 			moveUpCameraPos(0.005+cameraSensibility);
 			moveUpTarget(0.005+cameraSensibility);
+			viewParamsChanged = true;
 		}
 		if(cameraInteraction.moveDown){
 			moveUpCameraPos(-0.005-cameraSensibility);
 			moveUpTarget(-0.005-cameraSensibility);
+			viewParamsChanged = true;
 		}
 		if(cameraInteraction.rotateUp){
 			rotateTargetUp(degToRad(5.5*cameraSensibility+0.5));
+			viewParamsChanged = true;
 		}
 		if(cameraInteraction.rotateDown){
 			rotateTargetUp(degToRad(-5.5*cameraSensibility-0.5));
+			viewParamsChanged = true;
 		}	
 		if(modalitaGara){
 			if(lancioCarrera == false){	//Qui sto pilotando la carrera, quindi aggiorno il target e la posizione camera in base al movimento della carrera
@@ -329,34 +353,42 @@ function moveCamera(){
 					camera_pos = [px+3.5*Math.sin(degToRad(facing)), 1.5, pz+3.5*Math.cos(degToRad(facing))];		
 					target = [px-4*Math.sin(degToRad(facing)), 1.5, pz-4*Math.cos(degToRad(facing))];
 					realign();
+					viewParamsChanged = true;
 				}else{	//Visuale dall'alto
 					camera_pos = [px+10.5*Math.sin(degToRad(facing)), 3, pz+10.5*Math.cos(degToRad(facing))];
 					target = [px-5*Math.sin(degToRad(facing)), 0, pz-5*Math.cos(degToRad(facing))];
 					realign();
+					viewParamsChanged = true;
 				}
 			}else{ //Ho lanciato la macchinina quindi fermo gradualmente la camera (che simula lo spingitore che ha finito di spingere e smette di correre) 
 				camera_pos = [camera_pos[0] - fineCorsa_inc*Math.sin(degToRad(facing)), camera_pos[1], camera_pos[2] - fineCorsa_inc*Math.cos(degToRad(facing))];
 				fineCorsa_inc *= 0.96;
 				target = [px-4*Math.sin(degToRad(facing)), target[1], pz-4*Math.cos(degToRad(facing))];
+				viewParamsChanged = true;
 			}
 		}
 }
 
 
 /*=================== DRAWING =================== */
-
 var render=function() {
 	// ridimensiono la canvas, se serve, per adattarla alla dimensione della finestra browser.
 	webglUtils.resizeCanvasToDisplaySize(canvas);
 	// setto quindi la viewport alla dimensione della canvas e aggiorno l'aspect
 	gl.viewport(0.0, 0.0, canvas.width, canvas.height);
-	aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+	newAspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 	
-	//set projection matrix
-	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax);
+	if(newAspect != aspect){
+		//set projection matrix
+		proj_matrix = m4.perspective(degToRad(fov), newAspect, zmin, zmax);
+		aspect = newAspect;	
+	}
+
 	//set view matrix
 	moveCamera();				  
-	view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
+	if(viewParamsChanged)
+		view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
+	
 
 	gl.enable(gl.DEPTH_TEST);
 	//gl.enable(gl.CULL_FACE);
@@ -395,19 +427,24 @@ const FRAMES_PER_SECOND = 30;  // Valid values are 60,30,20,15,10...
 // set the mim time to render the next frame
 const FRAME_MIN_TIME = (1000/60) * (60 / FRAMES_PER_SECOND) - (1000/60) * 0.5;
 var lastFrameTime = 0;  // the last frame time
-
+var lightRotation = 0;
 function update(time){
     if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is too early		
 		lightPos = initial_LightPos;
-		if(!modalitaGara){
-			lightMmatrix = m4.yRotation(time*0.0004, lightMmatrix);
-			lightPos = m4.transformPoint(lightMmatrix, lightPos);
-		} else{	CarreraDoStep(); }
+		lightMmatrix = m4.yRotation(lightRotation*0.002, lightMmatrix);
+		lightPos = m4.transformPoint(lightMmatrix, lightPos);
+		if(lightMoveOpt){
+			lightRotation += 1;
+		}
+		if(modalitaGara)
+			CarreraDoStep();
+	
         window.requestAnimationFrame(update);
         return; // return as there is nothing to do
     }
     lastFrameTime = time; // remember the time of the rendered frame
-    // render the frame
+    
+	// render the frame
 	if(shadowOpt){ 	
 		renderWithShadow();		//Definita in shadow.js!	
 	}else{

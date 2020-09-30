@@ -346,7 +346,14 @@ function activeShadow(checkbox){
 		shadowOpt = true;
 	else
 		shadowOpt = false;
+}
 
+//Attiva/disattiva movimento del sole
+function activeLightMovement(checkbox){
+	if(checkbox.checked)
+		lightMoveOpt = true;
+	else
+		lightMoveOpt = false;
 }
 
 //Camera Sensibility

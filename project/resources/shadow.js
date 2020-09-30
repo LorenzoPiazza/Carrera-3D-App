@@ -114,14 +114,18 @@ function renderWithShadow(){
 	webglUtils.resizeCanvasToDisplaySize(canvas);
 	// setto quindi la viewport alla dimensione della canvas e aggiorno l'aspect
 	gl.viewport(0.0, 0.0, canvas.width, canvas.height);
-	aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-		
-	// setto la projection matrix
-	proj_matrix = m4.perspective(degToRad(fov), aspect, zmin, zmax);
+	newAspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+	if(newAspect != aspect){
+		//set projection matrix
+		proj_matrix = m4.perspective(degToRad(fov), newAspect, zmin, zmax);
+		aspect = newAspect;	
+	}
+	
 	// setto la view matrix con posizione camera nella lightPos
 	moveCamera();
-	view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
-
+	if(viewParamsChanged)
+		view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
+	
 	gl.enable(gl.DEPTH_TEST);
 	//gl.enable(gl.CULL_FACE);
 	//gl.depthFunc(gl.LEQUAL);

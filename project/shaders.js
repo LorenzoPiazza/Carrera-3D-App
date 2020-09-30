@@ -85,6 +85,7 @@
 						varying vec2 v_texcoord;		// La coordinata texture del singolo fragment, ottenuta per interpolazione.
 						
 						uniform int mode; // Rendering mode: 0 per mesh senza texture, 1 per mesh con texture
+						uniform int sun;	// 1: se la mesh corrente è il sole
 						
 						// Material parameters
 						uniform vec3 Ka; // Ambient reflection coefficient
@@ -99,7 +100,11 @@
 						// The Texture
 						uniform sampler2D u_texture;						
 						
-						void main() {
+						void main() {							
+							if(sun == 1){	//Nel caso della sorgente luminosa coloro senza curarmi dell'illuminazione
+								gl_FragColor = vec4( Ka * ambientLight + Kd * diffuseLight + Ks * specularLight, 1.0);
+								return;
+							}
 							vec3 N = normalize(fragNormalInterp);
 							vec3 L = normalize(lightPos - fragVertPos);		//Vettore L ottenuto come differenza di punti
 							float lambertian = max(dot(L, N), 0.0);			// Prodotto scalare tra L e N
@@ -155,6 +160,7 @@
 						varying vec2 v_texcoord;		// La coordinata texture del singolo fragment, ottenuta per interpolazione.
 						
 						uniform int mode; // Rendering mode: 0 per mesh senza texture, 1 per mesh con texture
+						uniform int sun;	// 1: se la mesh corrente è il sole
 						
 						// MATERIAL PARAMETERS
 						uniform vec3 Ka; // Ambient reflection coefficient
@@ -221,7 +227,11 @@
 						}
 
 						void main() {
-							if (in_shadow()) { 	//Se il fragment è in ombra riceve ho solo la componente luce ambiente		
+							if(sun == 1){	//Nel caso della sorgente luminosa coloro senza curarmi dell'illuminazione
+								gl_FragColor = vec4( Ka * ambientLight + Kd * diffuseLight + Ks * specularLight, 1.0);
+								return;
+							}
+							if (in_shadow()) { 	//Se il fragment è in ombra ho solo la componente luce ambiente		
 								if (mode == 1){		//Il colore del fragment è condizionato anche dalla texture
 									vec4 textureColor = texture2D(u_texture, v_texcoord);
 									gl_FragColor = vec4( (Ka * ambientLight) * textureColor.rgb, 1.0);
@@ -322,7 +332,8 @@ function initPrograms(){
 			_ambientLight	: gl.getUniformLocation(programList.lightTextureProgram, "ambientLight"),
 			_diffuseLight	: gl.getUniformLocation(programList.lightTextureProgram, "diffuseLight"),
 			_specularLight	: gl.getUniformLocation(programList.lightTextureProgram, "specularLight"),
-			_lightPos		: gl.getUniformLocation(programList.lightTextureProgram, "lightPos")
+			_lightPos		: gl.getUniformLocation(programList.lightTextureProgram, "lightPos"),
+			_sun			: gl.getUniformLocation(programList.lightTextureProgram, "sun"),
 	};
 	
 	/*======== Creo il programma =====*/
@@ -347,7 +358,8 @@ function initPrograms(){
 			_specularLight	: gl.getUniformLocation(programList.shadowProgram, "specularLight"),
 			_lightPos		: gl.getUniformLocation(programList.shadowProgram, "lightPos"),
 			_shadowBuff		: gl.getUniformLocation(programList.shadowProgram, "shadowBuff"),
-			_toLightPovMatrix : gl.getUniformLocation(programList.shadowProgram, "toLightPovMatrix")
+			_toLightPovMatrix : gl.getUniformLocation(programList.shadowProgram, "toLightPovMatrix"),
+			_sun			: gl.getUniformLocation(programList.shadowProgram, "sun"),
 			//_u_Tolerance_constant : gl.getUniformLocation(programList.shadowProgram, "u_Tolerance_constant") 
 	};
 }

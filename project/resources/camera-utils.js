@@ -19,10 +19,12 @@ function initCamera(){
  camera_pos = [4, 3, 8];
  target = [-2, 2, -8];
  up = [0, 1, 0];
- /*E calcolo gli assi della camera*/
- forward_versor = m4.normalize(m4.subtractVectors(target, camera_pos, forward_versor)); 	//Ze
- right_versor = m4.normalize(m4.cross(forward_versor, up));									//Xe
- ycam_axis = m4.normalize(m4.cross(right_versor, forward_versor));							//Ye
+ /*...calcolo gli assi della camera*/
+ forward_versor = m4.normalize(m4.subtractVectors(target, camera_pos, forward_versor)); 	//Asse Ze
+ right_versor = m4.normalize(m4.cross(forward_versor, up));									//Asse Xe
+ ycam_axis = m4.normalize(m4.cross(right_versor, forward_versor));							//Asse Ye
+ /*E inizializzo la matrice di vista*/
+ view_matrix = m4.inverse(m4.lookAt(camera_pos, target, up));
 }
 
 /* Funzione realign() che permette di ricalcolare le giuste direzioni degli assi Xe (qui chiamato right_versor) - Ye - Ze (qui chiamato forward_versor).*/

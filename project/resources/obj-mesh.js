@@ -117,6 +117,7 @@ function loadMeshObj(ncopies, meshName, filename, initial_mo_matrixes, material,
 
 
 /************************** STANDARD DRAW WITH ONLY COLORS **************************/
+
 function drawMesh(item){
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
 	mo_matrix = m4.identity(); //0.Resetto la mo_matrix	
@@ -177,6 +178,10 @@ function drawLightTextureMesh(item){
 				//Scommentare la prossima riga e sostituire alla riga sopra per far anche muovere la fotocameraMesh oltre ad orientarla.
 				//mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos[0]+px, fotocameraMeshPos[1]+py, fotocameraMeshPos[2]+pz], [px,py,pz], [0,1,0]));
 				break;
+			case "soleMesh":
+				mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+				break;
 			default:
 				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 		}		
@@ -215,6 +220,11 @@ function drawLightTextureMesh(item){
 		gl.uniform1i(lightTextureProgramLocs._mode, 0);
 	}	
 	
+	if(item.meshName == "soleMesh")
+		gl.uniform1i(lightTextureProgramLocs._sun, 1);
+	else
+		gl.uniform1i(lightTextureProgramLocs._sun, 0);
+	
 	//SETUP DEGLI UNIFORM (qui setto solo quelli che cambiano di mesh in mesh. Quelli che restano costanti per tutto l'uso del programma li setto una volta sola nella funzione render)
 	gl.uniformMatrix4fv(lightTextureProgramLocs._Mmatrix, false, mo_matrix);
 	gl.uniformMatrix4fv(lightTextureProgramLocs._normalMat, false, m4.transpose(m4.inverse(mo_matrix)));	
@@ -236,7 +246,7 @@ function drawLightTextureMesh(item){
 
 /************************** DRAW ON THE SHADOW FRAME BUFFER **************************/		//(E' una standard draw, senza colori, tanto mi interessano solo i depth values)
 function drawOnShadowBufferMesh(item){
-	if(item.meshName == "soleMesh")
+	if(item.meshName == "soleMesh")		//Il sole non devo disegnarlo in quanto è la mia sorgente luminosa.
 		return;
 	/*Calcolo la matrice di movimento per l'oggetto Mesh:*/
 	mo_matrix = m4.identity(); //0.Resetto la mo_matrix
@@ -326,6 +336,10 @@ function drawLightTextureShadowMesh(item){
 				//Scommentare la prossima riga e sostituire alla riga sopra per far anche muovere la fotocameraMesh oltre ad orientarla.
 				//mo_matrix = m4.multiply(mo_matrix, m4.lookAt(fotocameraMeshPos[0]+px, fotocameraMeshPos[1]+py, fotocameraMeshPos[2]+pz], [px,py,pz], [0,1,0]));
 				break;
+			case "soleMesh":
+				mo_matrix = m4.multiply(mo_matrix, lightMmatrix);
+				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
+				break;
 			default:
 				mo_matrix = m4.multiply(mo_matrix, item.initial_mo_matrix);
 		}		
@@ -357,13 +371,18 @@ function drawLightTextureShadowMesh(item){
 		//ATTIVO LE TEXTURE
 		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D, item.texture);
-		// Tell the shader to use texture unit 0 for the sampler2D "u_texture"
+		// Tell the shader to use texture unit 1 for the sampler2D "u_texture"
 		gl.uniform1i(shadowProgramLocs._texture, 1);
 		
 		gl.uniform1i(shadowProgramLocs._mode, 1);
 	} else{
 		gl.uniform1i(shadowProgramLocs._mode, 0);
 	}	
+	
+	if(item.meshName == "soleMesh")
+		gl.uniform1i(shadowProgramLocs._sun, 1);
+	else
+		gl.uniform1i(shadowProgramLocs._sun, 0);
 	
 	//SETUP DEGLI UNIFORM (qui setto solo quelli che cambiano di mesh in mesh. Quelli che restano costanti per tutto l'uso del programma li setto una volta sola nella funzione render)
 	gl.uniformMatrix4fv(shadowProgramLocs._Mmatrix, false, mo_matrix);
