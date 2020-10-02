@@ -99,7 +99,7 @@ function loadMeshObj(ncopies, meshName, filename, initial_mo_matrixes, material,
   //CARICAMENTO ASINCRONO DELLA RISORSA TRAMITE JQUERY AJAX
   $.get({url: filename, cache: false,
 		success: function(result,status,xhr){
-			console.log('Caricamento mesh ' + meshName +':');
+			//console.log('Caricamento mesh ' + meshName +':');
 			var meshData = new subd_mesh();
 			meshData = ReadOBJ(result, meshData);		//1.Leggo il file obj
 			var meshObject;
@@ -219,6 +219,7 @@ function drawLightTextureMesh(item){
 		gl.uniform1i(lightTextureProgramLocs._mode, 1);
 	} else{
 		gl.uniform1i(lightTextureProgramLocs._mode, 0);
+		gl.disableVertexAttribArray(lightTextureProgramLocs._texcoord);
 	}	
 	
 	if(item.meshName == "soleMesh")
@@ -378,6 +379,7 @@ function drawLightTextureShadowMesh(item){
 		gl.uniform1i(shadowProgramLocs._mode, 1);
 	} else{
 		gl.uniform1i(shadowProgramLocs._mode, 0);
+		gl.disableVertexAttribArray(shadowProgramLocs._texcoord);
 	}	
 	
 	if(item.meshName == "soleMesh")

@@ -17,7 +17,7 @@ body {
   background-color: transparent;  /* needed because we setcanvas bg color to white */
   position: absolute;
   align: center;
-  z-index: 10;
+  z-index: 2;
 }
 #mainCanvas {			
  background: #000099;
@@ -32,7 +32,7 @@ body {
  left: 2.5%;
  display: flex;
  flex-direction: column;
- z-index: 2;
+ z-index: 3;
  padding: 10px 10px 10px 10px;
  background-color: rgba(255, 0, 0, 0.1);
  border: 2px outset rgb(187, 68, 48);
@@ -48,13 +48,13 @@ body {
 	position: absolute;
 	left: 4%;
 	bottom: 15%;
-	z-index: 2;
+	z-index: 4;
 }
 #touchCanvas2 {
 	position: absolute;
 	right: 4%;
 	bottom: 15%;
-	z-index: 2;
+	z-index: 4;
 }
 
 

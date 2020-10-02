@@ -334,7 +334,7 @@ function initPrograms(){
 			_diffuseLight	: gl.getUniformLocation(programList.lightTextureProgram, "diffuseLight"),
 			_specularLight	: gl.getUniformLocation(programList.lightTextureProgram, "specularLight"),
 			_lightPos		: gl.getUniformLocation(programList.lightTextureProgram, "lightPos"),
-			_sun			: gl.getUniformLocation(programList.lightTextureProgram, "sun"),
+			_sun			: gl.getUniformLocation(programList.lightTextureProgram, "sun")
 	};
 	
 	/*======== Creo il programma =====*/
@@ -360,7 +360,7 @@ function initPrograms(){
 			_lightPos		: gl.getUniformLocation(programList.shadowProgram, "lightPos"),
 			_shadowBuff		: gl.getUniformLocation(programList.shadowProgram, "shadowBuff"),
 			_toLightPovMatrix : gl.getUniformLocation(programList.shadowProgram, "toLightPovMatrix"),
-			_sun			: gl.getUniformLocation(programList.shadowProgram, "sun"),
+			_sun			: gl.getUniformLocation(programList.shadowProgram, "sun")
 			//_u_Tolerance_constant : gl.getUniformLocation(programList.shadowProgram, "u_Tolerance_constant") 
 	};
 }
